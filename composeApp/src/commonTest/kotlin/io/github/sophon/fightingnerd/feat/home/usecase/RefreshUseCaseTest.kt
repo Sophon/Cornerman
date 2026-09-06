@@ -10,6 +10,8 @@ import io.github.sophon.core.featureConfig.model.Game
 import io.github.sophon.core.wiki.data.WikiError
 import io.github.sophon.core.wiki.model.RefreshEvent
 import io.github.sophon.fightingnerd.core.model.AppError
+import io.github.sophon.fightingnerd.core.usecase.RefreshReport
+import io.github.sophon.fightingnerd.core.usecase.RefreshUseCase
 import io.github.sophon.fightingnerd.feat.FakeFeatureRepo
 import io.github.sophon.fightingnerd.feat.FakeWikiClient
 import io.github.sophon.fightingnerd.feat.more.util.featureKey
@@ -55,7 +57,7 @@ internal class RefreshUseCaseTest {
         val expectedRefreshCalled = true
 
         // when
-        val emissions = usecase.invoke().toList()
+        val emissions = usecase().toList()
         val refreshCalled = wikiClient.refreshCalled
 
         //then
@@ -86,7 +88,7 @@ internal class RefreshUseCaseTest {
         )
 
         // when
-        val emissions = usecase.invoke().toList()
+        val emissions = usecase().toList()
 
         //then
         assertThat(emissions).isEqualTo(expected)
@@ -105,7 +107,7 @@ internal class RefreshUseCaseTest {
         val expectedRefreshCalled = false
 
         // when
-        usecase.invoke().toList()
+        usecase().toList()
         val refreshCalled = wikiClient.refreshCalled
 
         //then
@@ -147,7 +149,7 @@ internal class RefreshUseCaseTest {
         )
 
         // when
-        val emissions = usecase.invoke().toList()
+        val emissions = usecase().toList()
 
         //then — per-client order is preserved but launches interleave; assert set equality
         assertThat(emissions).containsExactlyInAnyOrder(*expected.toTypedArray())
