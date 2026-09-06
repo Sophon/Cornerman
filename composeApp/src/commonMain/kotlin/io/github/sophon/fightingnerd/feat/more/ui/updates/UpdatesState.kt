@@ -27,10 +27,14 @@ internal data class UpdatesState(
         val version: String,
         val gameList: ImmutableList<UiGame>,
     ) {
+        val isRefreshing: Boolean
+            get() = gameList.isNotEmpty() && gameList.all { it.isRefreshing }
+
         data class UiGame(
             val name: String,
             val id: String,
             val lastUpdatedTimeStamp: String,
+            val isRefreshing: Boolean = false,
         )
     }
 

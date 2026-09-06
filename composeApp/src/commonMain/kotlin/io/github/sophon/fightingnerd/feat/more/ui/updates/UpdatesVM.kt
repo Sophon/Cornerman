@@ -9,6 +9,7 @@ import io.github.sophon.core.util.toHumanReadableString
 import io.github.sophon.fightingnerd.core.ui.OverlayService
 import io.github.sophon.fightingnerd.core.ui.Toast
 import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.ManualRefreshUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SetUpdatePeriodUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToUpdatePeriodUseCase
 import kotlinx.collections.immutable.toImmutableList
@@ -24,11 +25,12 @@ internal class UpdatesVM(
     private val getAvailableFeaturesUseCase: GetAvailableFeaturesUseCase,
     private val subscribeToUpdatePeriodUseCase: SubscribeToUpdatePeriodUseCase,
     private val setUpdatePeriodUseCase: SetUpdatePeriodUseCase,
+    private val manualRefreshUseCase: ManualRefreshUseCase,
 ): ViewModel() {
     private val _state = MutableStateFlow(UpdatesState())
     val state = _state
         .onStart {
-            subscribeToEnabledGames()
+            viewModelScope.launch { loadFeatureList() }
             subscribeToAutoUpdateSetting()
         }
         .stateIn(
@@ -59,6 +61,70 @@ internal class UpdatesVM(
         }
     }
 
+    fun refreshWiki(name: String) {
+        val gameIdList = _state.value.featureList
+            .firstOrNull { it.name == name }
+            ?.gameList
+            ?.map { it.id }
+            .orEmpty()
+        if (gameIdList.isEmpty()) return
+
+        setFeatureRefreshing(name = name, isRefreshing = true)
+        viewModelScope.launch {
+            manualRefreshUseCase.refreshWiki(gameIdList)
+                .onSuccess {
+                    overlayService.show(Toast(message = "Refreshed", type = Toast.Type.SUCCESS))
+                }
+                .onError { error ->
+                    Napier.e(tag = TAG) { "refreshWiki $name: $error" }
+                    overlayService.show(error)
+                }
+            setFeatureRefreshing(name = name, isRefreshing = false)
+            loadFeatureList()
+        }
+    }
+
+    fun refreshGame(gameId: String) {
+        setGameRefreshing(gameId = gameId, isRefreshing = true)
+        viewModelScope.launch {
+            manualRefreshUseCase.refreshGame(gameId)
+                .onSuccess {
+                    overlayService.show(Toast(message = "Refreshed", type = Toast.Type.SUCCESS))
+                }
+                .onError { error ->
+                    Napier.e(tag = TAG) { "refreshGame $gameId: $error" }
+                    overlayService.show(error)
+                }
+            setGameRefreshing(gameId = gameId, isRefreshing = false)
+            loadFeatureList()
+        }
+    }
+
+    private fun setFeatureRefreshing(name: String, isRefreshing: Boolean) {
+        _state.update { current ->
+            val newList = current.featureList.map { feature ->
+                if (feature.name != name) return@map feature
+                val newGameList = feature.gameList
+                    .map { it.copy(isRefreshing = isRefreshing) }
+                    .toImmutableList()
+                feature.copy(gameList = newGameList)
+            }.toImmutableList()
+            current.copy(featureList = newList)
+        }
+    }
+
+    private fun setGameRefreshing(gameId: String, isRefreshing: Boolean) {
+        _state.update { current ->
+            val newList = current.featureList.map { feature ->
+                val newGameList = feature.gameList.map { game ->
+                    if (game.id == gameId) game.copy(isRefreshing = isRefreshing) else game
+                }.toImmutableList()
+                feature.copy(gameList = newGameList)
+            }.toImmutableList()
+            current.copy(featureList = newList)
+        }
+    }
+
     fun save() {
         val settings = _state.value.updatedAutoUpdateSettings
         val duration = settings.toDuration()
@@ -80,10 +146,16 @@ internal class UpdatesVM(
     }
 
 
-    private fun subscribeToEnabledGames() {
-        viewModelScope.launch {
-            getAvailableFeaturesUseCase.invoke()
-                .onSuccess { featureList ->
+    private suspend fun loadFeatureList() {
+        getAvailableFeaturesUseCase.invoke()
+            .onSuccess { featureList ->
+                _state.update { current ->
+                    val refreshingGames = current.featureList
+                        .flatMap { it.gameList }
+                        .filter { it.isRefreshing }
+                        .map { it.id }
+                        .toSet()
+
                     val uiList = featureList
                         .mapNotNull { feature ->
                             val enabledGames = feature.gameList
@@ -95,6 +167,7 @@ internal class UpdatesVM(
                                         name = game.name,
                                         id = game.id,
                                         lastUpdatedTimeStamp = timestamp.toHumanReadableString(),
+                                        isRefreshing = game.id in refreshingGames,
                                     )
                                     uiGame
                                 }
@@ -108,12 +181,12 @@ internal class UpdatesVM(
                             uiFeature
                         }
                         .toImmutableList()
-                    _state.update { it.copy(featureList = uiList) }
+                    current.copy(featureList = uiList)
                 }
-                .onError { error ->
-                    Napier.e(tag = TAG) { "subscribeToEnabledGames: $error" }
-                }
-        }
+            }
+            .onError { error ->
+                Napier.e(tag = TAG) { "loadFeatureList: $error" }
+            }
     }
 
     private fun subscribeToAutoUpdateSetting() {

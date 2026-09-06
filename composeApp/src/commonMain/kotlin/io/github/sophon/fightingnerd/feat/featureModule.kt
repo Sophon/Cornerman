@@ -12,6 +12,7 @@ import io.github.sophon.fightingnerd.feat.more.ui.MoreVM
 import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsVM
 import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesVM
 import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.ManualRefreshUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SaveFeatureConfigUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SetUpdatePeriodUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToThemeUseCase
@@ -60,6 +61,7 @@ internal fun featureModule() = module {
     singleOf(::SaveFeatureConfigUseCase)
     singleOf(::SubscribeToUpdatePeriodUseCase)
     singleOf(::SetUpdatePeriodUseCase)
+    singleOf(::ManualRefreshUseCase)
 
     viewModelOf(::FeatureSettingsVM)
     viewModelOf(::UpdatesVM)

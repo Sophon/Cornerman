@@ -45,6 +45,7 @@ import fightingnerd.composeapp.generated.resources.more_updates_settings_auto_up
 import fightingnerd.composeapp.generated.resources.more_updates_settings_auto_update_title
 import fightingnerd.composeapp.generated.resources.more_updates_settings_last_updated
 import fightingnerd.composeapp.generated.resources.more_updates_settings_period_label
+import io.github.sophon.fightingnerd.core.ui.components.CircularLoader
 import io.github.sophon.fightingnerd.core.ui.components.TopBarButton
 import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesState.UiFeatureSetting
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
@@ -72,6 +73,8 @@ internal fun UpdatesScreen(
         onSetPeriod = vm::setPeriod,
         onSetUnit = vm::setUnit,
         onSave = vm::save,
+        onRefreshFeature = vm::refreshWiki,
+        onRefreshGame = vm::refreshGame,
         modifier = modifier,
     )
 }
@@ -84,6 +87,8 @@ private fun Content(
     onSetPeriod: (String) -> Unit,
     onSetUnit: (Int) -> Unit,
     onSave: () -> Unit,
+    onRefreshFeature: (String) -> Unit,
+    onRefreshGame: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -112,6 +117,8 @@ private fun Content(
 
         GameList(
             featureList = state.featureList,
+            onRefreshFeature = onRefreshFeature,
+            onRefreshGame = onRefreshGame,
         )
     }
 }
@@ -277,6 +284,8 @@ private fun PeriodRow(
 @Composable
 private fun GameList(
     featureList: ImmutableList<UiFeatureSetting>,
+    onRefreshFeature: (String) -> Unit,
+    onRefreshGame: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -297,12 +306,16 @@ private fun GameList(
                 FeatureItem(
                     name = feature.name,
                     isCategory = true,
+                    isRefreshing = feature.isRefreshing,
+                    onRefresh = { onRefreshFeature(feature.name) },
                 )
 
                 feature.gameList.forEach { game ->
                     FeatureItem(
                         name = game.name,
                         isCategory = false,
+                        isRefreshing = game.isRefreshing,
+                        onRefresh = { onRefreshGame(game.id) },
                         lastUpdatedTimeStamp = game.lastUpdatedTimeStamp,
                     )
                 }
@@ -315,6 +328,8 @@ private fun GameList(
 private fun FeatureItem(
     name: String,
     isCategory: Boolean,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
     lastUpdatedTimeStamp: String? = null,
 ) {
@@ -346,12 +361,21 @@ private fun FeatureItem(
             }
         }
 
-        IconButton(onClick = { /* TODO: bind refresh */ }) {
-            Icon(
-                imageVector = Icons.Default.Refresh,
-                contentDescription = null,
-                tint = nerdColorPalette.textPrimary,
-            )
+        if (isRefreshing) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(48.dp),
+            ) {
+                CircularLoader(modifier = Modifier.size(24.dp))
+            }
+        } else {
+            IconButton(onClick = onRefresh) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    tint = nerdColorPalette.textPrimary,
+                )
+            }
         }
     }
 }
@@ -369,6 +393,8 @@ private fun PreviewEnabled() {
             onSetPeriod = {},
             onSetUnit = {},
             onSave = {},
+            onRefreshFeature = {},
+            onRefreshGame = {},
         )
     }
 }
@@ -384,6 +410,8 @@ private fun PreviewDisabled() {
             onSetPeriod = {},
             onSetUnit = {},
             onSave = {},
+            onRefreshFeature = {},
+            onRefreshGame = {},
         )
     }
 }
