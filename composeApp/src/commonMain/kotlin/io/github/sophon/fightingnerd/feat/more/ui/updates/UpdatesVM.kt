@@ -2,12 +2,27 @@ package io.github.sophon.fightingnerd.feat.more.ui.updates
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import io.github.aakira.napier.Napier
+import io.github.sophon.core.architecture.onError
+import io.github.sophon.core.architecture.onSuccess
+import io.github.sophon.fightingnerd.core.ui.OverlayService
+import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.SetUpdatePeriodUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToUpdatePeriodUseCase
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-internal class UpdatesVM: ViewModel() {
+internal class UpdatesVM(
+    private val overlayService: OverlayService,
+    private val getAvailableFeaturesUseCase: GetAvailableFeaturesUseCase,
+    private val subscribeToUpdatePeriodUseCase: SubscribeToUpdatePeriodUseCase,
+    private val setUpdatePeriodUseCase: SetUpdatePeriodUseCase,
+): ViewModel() {
     private val _state = MutableStateFlow(UpdatesState())
     val state = _state
         .onStart {
@@ -22,23 +37,98 @@ internal class UpdatesVM: ViewModel() {
 
 
     fun toggleEnableAutoUpdate() {
-        TODO()
+        _state.update { current ->
+            val toggled = current.autoUpdateSettings.copy(
+                isEnabled = current.autoUpdateSettings.isEnabled.not(),
+            )
+            current.copy(autoUpdateSettings = toggled)
+        }
     }
 
-    fun increasePeriod(duration: Int? = null) {
-        TODO()
+    fun setDuration(duration: String) {
+        _state.update { current ->
+            val parsed = duration.toIntOrNull()
+            current.copy(autoUpdateSettings = current.autoUpdateSettings.copy(period = parsed))
+        }
     }
 
     fun setUnit(index: Int) {
-        TODO()
+        _state.update { current ->
+            val newUnit = UpdatesState.AutoUpdateSettings.TimeUnit.entries[index]
+            val updated = current.autoUpdateSettings.copy(unit = newUnit)
+            current.copy(autoUpdateSettings = updated)
+        }
+    }
+
+    fun save() {
+        val settings = _state.value.autoUpdateSettings
+        val duration = settings.toDuration()
+        if (settings.isEnabled && duration == null) return
+
+        viewModelScope.launch {
+            val period = duration.takeIf { settings.isEnabled }
+            setUpdatePeriodUseCase(period)
+                .onError { error ->
+                    Napier.e(tag = TAG) { "setUpdatePeriod: $error" }
+                    overlayService.show(error)
+                }
+        }
     }
 
 
     private fun subscribeToEnabledGames() {
-        TODO()
+        viewModelScope.launch {
+            getAvailableFeaturesUseCase.invoke()
+                .onSuccess { featureList ->
+                    val uiList = featureList
+                        .mapNotNull { feature ->
+                            val enabledGames = feature.gameList
+                                .mapNotNull { game ->
+                                    val timestamp = game.lastUpdatedTimeStamp
+                                    if (game.isEnabled.not() || timestamp == null) return@mapNotNull null
+
+                                    val uiGame = UpdatesState.UiFeatureSetting.UiGame(
+                                        name = game.name,
+                                        id = game.id,
+                                        lastUpdatedTimeStamp = timestamp,
+                                    )
+                                    uiGame
+                                }
+                            if (enabledGames.isEmpty()) return@mapNotNull null
+                            val uiFeature = UpdatesState.UiFeatureSetting(
+                                name = feature.name,
+                                iconUrl = feature.iconUrl,
+                                version = feature.version,
+                                gameList = enabledGames.toImmutableList(),
+                            )
+                            uiFeature
+                        }
+                        .toImmutableList()
+                    _state.update { it.copy(featureList = uiList) }
+                }
+                .onError { error ->
+                    Napier.e(tag = TAG) { "subscribeToEnabledGames: $error" }
+                }
+        }
     }
 
     private fun subscribeToAutoUpdateSetting() {
-        TODO()
+        viewModelScope.launch {
+            subscribeToUpdatePeriodUseCase().collect { duration ->
+                _state.update { current ->
+                    val newSettings = if (duration == null) {
+                        current.autoUpdateSettings.copy(isEnabled = false)
+                    } else {
+                        UpdatesState.AutoUpdateSettings.fromDuration(duration)
+                    }
+                    current.copy(autoUpdateSettings = newSettings)
+                }
+            }
+        }
+    }
+
+
+    companion object {
+        private const val TAG = "UpdatesVM"
     }
 }

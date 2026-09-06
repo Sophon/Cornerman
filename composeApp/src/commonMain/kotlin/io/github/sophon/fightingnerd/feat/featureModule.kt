@@ -10,9 +10,12 @@ import io.github.sophon.fightingnerd.feat.module.domain.WikiClientFactory
 import io.github.sophon.fightingnerd.feat.module.usecase.LoadConfigUseCase
 import io.github.sophon.fightingnerd.feat.more.ui.MoreVM
 import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsVM
+import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesVM
 import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SaveFeatureConfigUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.SetUpdatePeriodUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToThemeUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToUpdatePeriodUseCase
 import io.github.sophon.fightingnerd.feat.move.ui.MoveListVM
 import io.github.sophon.fightingnerd.feat.move.usecase.DownloadMediaUseCase
 import io.github.sophon.fightingnerd.feat.move.usecase.GroupMovesUseCase
@@ -55,8 +58,11 @@ internal fun featureModule() = module {
     singleOf(::GetAvailableFeaturesUseCase)
     singleOf(::SubscribeToThemeUseCase)
     singleOf(::SaveFeatureConfigUseCase)
+    singleOf(::SubscribeToUpdatePeriodUseCase)
+    singleOf(::SetUpdatePeriodUseCase)
 
     viewModelOf(::FeatureSettingsVM)
+    viewModelOf(::UpdatesVM)
     //endregion
 
     //region Move

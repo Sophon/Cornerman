@@ -28,7 +28,13 @@ internal class GetAvailableFeaturesUseCase(
         }
 
         val list = grouped.map { (_, entries) ->
-            val featureInfo = entries.first().value.featureInfo
+            val wikiClient = entries.first().value
+            val featureInfo = wikiClient.featureInfo
+            val lastUpdate = when (val lastUpdateResult = wikiClient.getLastUpdateTimeStamp()) {
+                is Result.Success -> lastUpdateResult.data
+                is Result.Error -> null
+            }
+
             FeatureSetting(
                 name = featureInfo.name,
                 iconUrl = featureInfo.iconUrl.orEmpty(),
@@ -39,6 +45,7 @@ internal class GetAvailableFeaturesUseCase(
                             name = game.displayName,
                             id = game.id,
                             isEnabled = gameConfigMap[game.id] ?: false,
+                            lastUpdatedTimeStamp = lastUpdate,
                         )
                     }
                     .toImmutableList(),
