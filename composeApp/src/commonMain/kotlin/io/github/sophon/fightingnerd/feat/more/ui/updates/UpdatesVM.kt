@@ -39,27 +39,27 @@ internal class UpdatesVM(
 
     fun toggleEnableAutoUpdate(isEnabled: Boolean) {
         _state.update { state ->
-            state.copy(autoUpdateSettings = state.autoUpdateSettings.copy(isEnabled = isEnabled))
+            state.copy(updatedAutoUpdateSettings = state.updatedAutoUpdateSettings.copy(isEnabled = isEnabled))
         }
     }
 
     fun setPeriod(duration: String) {
         _state.update { current ->
             val parsed = duration.toIntOrNull()
-            current.copy(autoUpdateSettings = current.autoUpdateSettings.copy(period = parsed))
+            current.copy(updatedAutoUpdateSettings = current.updatedAutoUpdateSettings.copy(period = parsed))
         }
     }
 
     fun setUnit(index: Int) {
         _state.update { current ->
             val newUnit = UpdatesState.AutoUpdateSettings.TimeUnit.entries[index]
-            val updated = current.autoUpdateSettings.copy(unit = newUnit)
-            current.copy(autoUpdateSettings = updated)
+            val updated = current.updatedAutoUpdateSettings.copy(unit = newUnit)
+            current.copy(updatedAutoUpdateSettings = updated)
         }
     }
 
     fun save() {
-        val settings = _state.value.autoUpdateSettings
+        val settings = _state.value.updatedAutoUpdateSettings
         val duration = settings.toDuration()
         if (settings.isEnabled && duration == null) return
 
@@ -115,11 +115,14 @@ internal class UpdatesVM(
             subscribeToUpdatePeriodUseCase().collect { duration ->
                 _state.update { current ->
                     val newSettings = if (duration == null) {
-                        current.autoUpdateSettings.copy(isEnabled = false)
+                        current.updatedAutoUpdateSettings.copy(isEnabled = false)
                     } else {
                         UpdatesState.AutoUpdateSettings.fromDuration(duration)
                     }
-                    current.copy(autoUpdateSettings = newSettings)
+                    current.copy(
+                        currentAutoUpdateSettings = newSettings,
+                        updatedAutoUpdateSettings = newSettings,
+                    )
                 }
             }
         }

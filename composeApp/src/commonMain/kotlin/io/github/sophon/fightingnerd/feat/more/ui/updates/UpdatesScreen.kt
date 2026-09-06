@@ -95,15 +95,15 @@ private fun Content(
             )
     ) {
         Header(
-            isChanged = true, //TODO: fix
+            isChanged = state.isChanged,
             onExit = onExit,
             onSave = onSave,
         )
 
         AutoUpdateToggle(
-            isEnabled = state.autoUpdateSettings.isEnabled,
-            period = state.autoUpdateSettings.period,
-            unit = state.autoUpdateSettings.unit,
+            isEnabled = state.updatedAutoUpdateSettings.isEnabled,
+            period = state.updatedAutoUpdateSettings.period,
+            unit = state.updatedAutoUpdateSettings.unit,
             onToggle = onToggleAutoUpdates,
             onSetPeriod = onSetPeriod,
             onSetUnit = onSetUnit,

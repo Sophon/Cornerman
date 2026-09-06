@@ -13,10 +13,13 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 
 internal data class UpdatesState(
-    val autoUpdateSettings: AutoUpdateSettings = AutoUpdateSettings(),
+    val currentAutoUpdateSettings: AutoUpdateSettings = AutoUpdateSettings(),
+    val updatedAutoUpdateSettings: AutoUpdateSettings = AutoUpdateSettings(),
 
     val featureList: ImmutableList<UiFeatureSetting> = persistentListOf(),
 ) {
+    val isChanged: Boolean get() = (currentAutoUpdateSettings != updatedAutoUpdateSettings)
+
     @Immutable
     internal data class UiFeatureSetting(
         val name: String,
@@ -145,9 +148,8 @@ internal data class UpdatesState(
         )
 
         val PREVIEW_ENABLED = UpdatesState(
-            autoUpdateSettings = AutoUpdateSettings(
-                isEnabled = true,
-            ),
+            currentAutoUpdateSettings = AutoUpdateSettings(isEnabled = true),
+            updatedAutoUpdateSettings = AutoUpdateSettings(isEnabled = true),
             featureList = features,
         )
 
