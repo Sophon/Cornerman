@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
-internal class SaveWikiConfigUseCaseTest {
+internal class SaveFeatureConfigUseCaseTest {
     @Test
     fun `usecase saves feature settings to the store`() = runTest {
         // given
