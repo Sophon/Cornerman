@@ -1,4 +1,4 @@
-package io.github.sophon.fightingnerd.feat.home.usecase
+package io.github.sophon.fightingnerd.core.usecase
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
