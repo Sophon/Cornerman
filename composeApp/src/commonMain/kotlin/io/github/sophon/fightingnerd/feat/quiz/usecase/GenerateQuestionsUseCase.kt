@@ -63,10 +63,10 @@ internal class GenerateQuestionsUseCase(
         val character = wikiClient.subscribeToCharacterList()
             .first()
             .firstOrNull { it.id == characterId }
-            ?: return Result.Error(AppError.Unknown)
+            ?: return Result.Error(AppError.Unknown("Unknown char: $characterId"))
 
         val moveList = wikiClient.subscribeToMoveList(CharacterId(characterId)).first()
-        if (moveList.isEmpty()) return Result.Error(AppError.Unknown)
+        if (moveList.isEmpty()) return Result.Error(AppError.Unknown("Empty movelist"))
 
         val allQuestions = mutableListOf<Question>()
         while (allQuestions.size < COUNT_QUESTIONS) {

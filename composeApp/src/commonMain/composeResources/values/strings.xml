@@ -92,6 +92,7 @@
     <string name="more_theme_dialog_dark">Dark</string>
     <string name="more_theme_dialog_light">Light</string>
     <string name="more_item_feature_settings">Feature settings</string>
+    <string name="more_item_data_update_settings">Updates settings</string>
     <string name="more_donate">Tip the developer</string>
     <string name="more_feature_settings_btn_save">Save</string>
     <string name="more_feature_settings_dialog_title">Are you sure?</string>

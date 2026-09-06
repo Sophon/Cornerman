@@ -35,6 +35,9 @@ sealed interface Destination : NavKey {
 
     @Serializable
     data object FeatureSettings : Destination
+
+    @Serializable
+    data object UpdatesSettings : Destination
 }
 
 internal val rootDestinations: List<Destination> = listOf(
