@@ -7,6 +7,7 @@ import io.github.sophon.core.architecture.onError
 import io.github.sophon.core.architecture.onSuccess
 import io.github.sophon.core.util.toHumanReadableString
 import io.github.sophon.fightingnerd.core.ui.OverlayService
+import io.github.sophon.fightingnerd.core.ui.Toast
 import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SetUpdatePeriodUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToUpdatePeriodUseCase
@@ -66,6 +67,11 @@ internal class UpdatesVM(
         viewModelScope.launch {
             val period = duration.takeIf { settings.isEnabled }
             setUpdatePeriodUseCase(period)
+                .onSuccess {
+                    overlayService.show(
+                        Toast(message = "Saved", type = Toast.Type.SUCCESS)
+                    )
+                }
                 .onError { error ->
                     Napier.e(tag = TAG) { "setUpdatePeriod: $error" }
                     overlayService.show(error)
