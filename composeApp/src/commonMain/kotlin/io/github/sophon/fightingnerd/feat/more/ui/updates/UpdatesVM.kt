@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import io.github.sophon.core.architecture.onError
 import io.github.sophon.core.architecture.onSuccess
+import io.github.sophon.core.util.toHumanReadableString
 import io.github.sophon.fightingnerd.core.ui.OverlayService
 import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SetUpdatePeriodUseCase
@@ -36,16 +37,13 @@ internal class UpdatesVM(
         )
 
 
-    fun toggleEnableAutoUpdate() {
-        _state.update { current ->
-            val toggled = current.autoUpdateSettings.copy(
-                isEnabled = current.autoUpdateSettings.isEnabled.not(),
-            )
-            current.copy(autoUpdateSettings = toggled)
+    fun toggleEnableAutoUpdate(isEnabled: Boolean) {
+        _state.update { state ->
+            state.copy(autoUpdateSettings = state.autoUpdateSettings.copy(isEnabled = isEnabled))
         }
     }
 
-    fun setDuration(duration: String) {
+    fun setPeriod(duration: String) {
         _state.update { current ->
             val parsed = duration.toIntOrNull()
             current.copy(autoUpdateSettings = current.autoUpdateSettings.copy(period = parsed))
@@ -90,7 +88,7 @@ internal class UpdatesVM(
                                     val uiGame = UpdatesState.UiFeatureSetting.UiGame(
                                         name = game.name,
                                         id = game.id,
-                                        lastUpdatedTimeStamp = timestamp,
+                                        lastUpdatedTimeStamp = timestamp.toHumanReadableString(),
                                     )
                                     uiGame
                                 }

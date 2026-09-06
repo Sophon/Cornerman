@@ -1,17 +1,23 @@
 package io.github.sophon.fightingnerd.feat.more.ui.updates
 
+import androidx.compose.runtime.Immutable
+import fightingnerd.composeapp.generated.resources.Res
+import fightingnerd.composeapp.generated.resources.general_unit_day
+import fightingnerd.composeapp.generated.resources.general_unit_hour
+import fightingnerd.composeapp.generated.resources.general_unit_month
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import org.jetbrains.compose.resources.StringResource
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
-import kotlin.time.Instant
 
 internal data class UpdatesState(
     val autoUpdateSettings: AutoUpdateSettings = AutoUpdateSettings(),
 
     val featureList: ImmutableList<UiFeatureSetting> = persistentListOf(),
 ) {
+    @Immutable
     internal data class UiFeatureSetting(
         val name: String,
         val iconUrl: String,
@@ -21,10 +27,11 @@ internal data class UpdatesState(
         data class UiGame(
             val name: String,
             val id: String,
-            val lastUpdatedTimeStamp: Instant,
+            val lastUpdatedTimeStamp: String,
         )
     }
 
+    @Immutable
     data class AutoUpdateSettings(
         val isEnabled: Boolean = false,
         val period: Int? = 7,
@@ -40,10 +47,10 @@ internal data class UpdatesState(
             return duration
         }
 
-        enum class TimeUnit {
-            HOUR,
-            DAY,
-            MONTH,
+        enum class TimeUnit(val stringResource: StringResource) {
+            HOUR(Res.string.general_unit_hour),
+            DAY(Res.string.general_unit_day),
+            MONTH(Res.string.general_unit_month),
         }
 
         companion object {
@@ -79,5 +86,71 @@ internal data class UpdatesState(
                 return settings
             }
         }
+    }
+
+
+    companion object {
+        val features = persistentListOf(
+            UiFeatureSetting(
+                name = "Wavu Wiki",
+                iconUrl = "",
+                version = "1.0.0",
+                gameList = persistentListOf(
+                    UiFeatureSetting.UiGame(
+                        name = "Tekken 8",
+                        id = "T8",
+                        lastUpdatedTimeStamp = "2026-09-01 08:15",
+                    ),
+                ),
+            ),
+            UiFeatureSetting(
+                name = "SuperCombo",
+                iconUrl = "",
+                version = "1.0.9",
+                gameList = persistentListOf(
+                    UiFeatureSetting.UiGame(
+                        name = "Street Fighter 6",
+                        id = "SF6",
+                        lastUpdatedTimeStamp = "2026-08-28 14:42",
+                    ),
+                    UiFeatureSetting.UiGame(
+                        name = "Mortal Kombat 1",
+                        id = "MK1",
+                        lastUpdatedTimeStamp = "2026-07-19 21:03",
+                    ),
+                ),
+            ),
+            UiFeatureSetting(
+                name = "Dustloop",
+                iconUrl = "",
+                version = "2.1.0",
+                gameList = persistentListOf(
+                    UiFeatureSetting.UiGame(
+                        name = "Guilty Gear Strive",
+                        id = "GGST",
+                        lastUpdatedTimeStamp = "2026-09-04 11:27",
+                    ),
+                    UiFeatureSetting.UiGame(
+                        name = "Granblue Fantasy Versus Rising",
+                        id = "GBVSR",
+                        lastUpdatedTimeStamp = "2026-08-15 06:50",
+                    ),
+                    UiFeatureSetting.UiGame(
+                        name = "BlazBlue Central Fiction",
+                        id = "BBCF",
+                        lastUpdatedTimeStamp = "2026-05-30 18:11",
+                    ),
+                ),
+            ),
+        )
+
+        val PREVIEW_ENABLED = UpdatesState(
+            autoUpdateSettings = AutoUpdateSettings(
+                isEnabled = true,
+            ),
+            featureList = features,
+        )
+
+        val PREVIEW_DISABLED = UpdatesState(featureList = features,)
     }
 }
