@@ -72,9 +72,9 @@ abstract class BaseWikiClient(
         return moveRepo.subscribeToMoveList(characterId.value)
     }
 
-    final override suspend fun getLastUpdateTimeStamp(): Result<Instant?, WikiError> {
-        val result = moveRepo.getLastUpdateTimestamp().mapError { it.toDomainError() }
-        return result
+    final override fun subscribeToLastUpdateTimestamp(): Flow<Instant?> {
+        val flow = moveRepo.subscribeToLastUpdateTimestamp()
+        return flow
     }
 
     final override suspend fun clearCache(): EmptyResult<WikiError> {

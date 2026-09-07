@@ -215,7 +215,7 @@ class SyncWikiDataUseCaseTest {
 
         override fun subscribeToCharacterList(): Flow<List<Character>> = emptyFlow()
         override fun subscribeToMoveList(characterId: CharacterId): Flow<List<Move>> = emptyFlow()
-        override suspend fun getLastUpdateTimeStamp(): Result<Instant?, WikiError> = throw NotImplementedError("Not used in this use case")
+        override fun subscribeToLastUpdateTimestamp(): Flow<Instant?> = throw NotImplementedError("Not used in this use case")
         override suspend fun clearCache(): EmptyResult<WikiError> = throw NotImplementedError("Not used in this use case")
         override fun getFiltersFor(game: Game): Set<Filter> = emptySet()
     }

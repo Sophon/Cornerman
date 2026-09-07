@@ -50,17 +50,12 @@ internal class RefreshUseCase(
     }
 
     private suspend fun WikiClient.isStale(olderThan: Duration): Boolean {
-        val isStale = when (val lastUpdate = getLastUpdateTimeStamp()) {
-            is Result.Success -> {
-                val instant = lastUpdate.data
-                if (instant == null) {
-                    true
-                } else {
-                    val now = Clock.System.now()
-                    (now - instant) > olderThan
-                }
-            }
-            is Result.Error -> true
+        val lastUpdate = subscribeToLastUpdateTimestamp().first()
+        val isStale = if (lastUpdate == null) {
+            true
+        } else {
+            val now = Clock.System.now()
+            (now - lastUpdate) > olderThan
         }
         return isStale
     }
