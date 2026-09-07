@@ -30,10 +30,7 @@ internal class GetAvailableFeaturesUseCase(
         val list = grouped.map { (_, entries) ->
             val wikiClient = entries.first().value
             val featureInfo = wikiClient.featureInfo
-            val lastUpdate = when (val lastUpdateResult = wikiClient.getLastUpdateTimeStamp()) {
-                is Result.Success -> lastUpdateResult.data
-                is Result.Error -> null
-            }
+            val lastUpdate = wikiClient.subscribeToLastUpdateTimestamp().first()
 
             FeatureSetting(
                 name = featureInfo.name,

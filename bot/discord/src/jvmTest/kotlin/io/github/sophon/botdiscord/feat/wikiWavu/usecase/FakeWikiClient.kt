@@ -1,7 +1,6 @@
 package io.github.sophon.botdiscord.feat.wikiWavu.usecase
 
 import io.github.sophon.core.architecture.EmptyResult
-import io.github.sophon.core.architecture.Result
 import io.github.sophon.core.featureConfig.model.FeatureInfo
 import io.github.sophon.core.featureConfig.model.Game
 import io.github.sophon.core.wiki.data.WikiError
@@ -89,7 +88,7 @@ internal class FakeWikiClient : WikiClient {
     }
 
     override fun refreshData(): Flow<RefreshEvent> = throw NotImplementedError("Not used in these tests")
-    override suspend fun getLastUpdateTimeStamp(): Result<Instant?, WikiError> = throw NotImplementedError("Not used in these tests")
+    override fun subscribeToLastUpdateTimestamp(): Flow<Instant?> = throw NotImplementedError("Not used in these tests")
     override suspend fun clearCache(): EmptyResult<WikiError> = throw NotImplementedError("Not used in these tests")
     override fun getFiltersFor(game: Game): Set<Filter> = emptySet()
 }
