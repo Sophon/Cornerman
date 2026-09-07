@@ -1,9 +1,13 @@
 package io.github.sophon.fightingnerd.feat.scheduler
 
+import io.github.aakira.napier.Napier
 import io.github.sophon.core.architecture.EmptyResult
 import io.github.sophon.core.architecture.Result
+import io.github.sophon.core.architecture.onError
+import io.github.sophon.core.architecture.onSuccess
 import io.github.sophon.fightingnerd.core.data.PreferenceRepo
 import io.github.sophon.fightingnerd.core.model.AppError
+import io.github.sophon.fightingnerd.core.usecase.RefreshUseCase
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCObjectVar
@@ -11,13 +15,23 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import org.koin.mp.KoinPlatform
 import platform.BackgroundTasks.BGProcessingTaskRequest
+import platform.BackgroundTasks.BGTask
 import platform.BackgroundTasks.BGTaskScheduler as PlatformScheduler
 import platform.Foundation.NSDate
 import platform.Foundation.NSError
 import platform.Foundation.dateWithTimeIntervalSinceNow
 import kotlin.time.Duration
+
+private const val TAG = "Scheduler"
+internal const val TASK_IDENTIFIER = "io.github.sophon.fightingnerd.refresh"
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 internal class BGTaskScheduler(
@@ -26,21 +40,7 @@ internal class BGTaskScheduler(
 
     override suspend fun setPeriod(duration: Duration): EmptyResult<AppError> {
         val result = try {
-            val request = BGProcessingTaskRequest(identifier = TASK_IDENTIFIER)
-            request.earliestBeginDate = NSDate.dateWithTimeIntervalSinceNow(
-                duration.inWholeSeconds.toDouble()
-            )
-            val submitError: String? = memScoped {
-                val errorRef = alloc<ObjCObjectVar<NSError?>>()
-                PlatformScheduler.sharedScheduler.submitTaskRequest(request, errorRef.ptr).let { ok ->
-                    if (ok) {
-                        null
-                    } else {
-                        errorRef.value?.localizedDescription.orEmpty()
-                    }
-                }
-            }
-
+            val submitError = submitBGRequest(duration)
             if (submitError != null) {
                 Result.Error(AppError.Unknown(submitError))
             } else {
@@ -66,9 +66,69 @@ internal class BGTaskScheduler(
         val flow = preferenceRepo.subscribeToUpdateInterval()
         return flow
     }
+}
 
-
-    private companion object {
-        const val TASK_IDENTIFIER = "io.github.sophon.fightingnerd.refresh"
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+internal fun registerBGTask() {
+    val registered = PlatformScheduler.sharedScheduler.registerForTaskWithIdentifier(
+        identifier = TASK_IDENTIFIER,
+        usingQueue = null,
+        launchHandler = { task -> task?.let(::handleBGTask) },
+    )
+    if (registered.not()) {
+        Napier.e(tag = TAG) { "BGTask registration failed for $TASK_IDENTIFIER" }
     }
+}
+
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+private fun handleBGTask(task: BGTask) {
+    val koin = KoinPlatform.getKoin()
+    val refreshUseCase = koin.get<RefreshUseCase>()
+    val preferenceRepo = koin.get<PreferenceRepo>()
+
+    val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    val job = scope.launch {
+        var success = true
+        try {
+            refreshUseCase().collect { emission ->
+                emission
+                    .onSuccess { report -> Napier.i(tag = TAG) { "bgTask: $report" } }
+                    .onError { error ->
+                        Napier.e(tag = TAG) { "bgTask: $error" }
+                        success = false
+                    }
+            }
+            val interval = preferenceRepo.subscribeToUpdateInterval().first()
+            if (interval != null) {
+                submitBGRequest(interval)
+            }
+        } catch (e: Exception) {
+            Napier.e(tag = TAG, throwable = e) { "bgTask crashed" }
+            success = false
+        }
+        task.setTaskCompletedWithSuccess(success)
+    }
+
+    task.expirationHandler = {
+        job.cancel()
+        task.setTaskCompletedWithSuccess(false)
+    }
+}
+
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+private fun submitBGRequest(duration: Duration): String? {
+    val request = BGProcessingTaskRequest(identifier = TASK_IDENTIFIER)
+    request.earliestBeginDate = NSDate.dateWithTimeIntervalSinceNow(
+        duration.inWholeSeconds.toDouble()
+    )
+    val error = memScoped {
+        val errorRef = alloc<ObjCObjectVar<NSError?>>()
+        val ok = PlatformScheduler.sharedScheduler.submitTaskRequest(request, errorRef.ptr)
+        if (ok) {
+            null
+        } else {
+            errorRef.value?.localizedDescription.orEmpty()
+        }
+    }
+    return error
 }
