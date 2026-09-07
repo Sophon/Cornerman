@@ -19,5 +19,13 @@
                 </dict>
             </dict>
         </dict>
+        <key>UIBackgroundModes</key>
+        <array>
+            <string>processing</string>
+        </array>
+        <key>BGTaskSchedulerPermittedIdentifiers</key>
+        <array>
+            <string>io.github.sophon.fightingnerd.refresh</string>
+        </array>
     </dict>
 </plist>
