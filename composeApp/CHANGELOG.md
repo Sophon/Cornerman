@@ -1,5 +1,12 @@
 # APP CHANGELOG
 
+## [v4.0.0] - TODO
+- `Move` - bugfixes
+- `Quiz` - allows quiz for individual characters
+- `More` 
+  - confirmation dialog for Feature settings
+  - Update settings
+
 ## [v3.1.0] - 2026-08-29
 - fixed downloaded media not being used
 - Tekken characters have stances in bookmarks

@@ -31,10 +31,13 @@ sealed interface Destination : NavKey {
     data class CharacterDetail(val gameId: String, val characterId: String) : Destination
 
     @Serializable
-    data class Quiz(val gameId: String) : Destination
+    data class Quiz(val gameId: String, val characterId: String? = null) : Destination
 
     @Serializable
     data object FeatureSettings : Destination
+
+    @Serializable
+    data object UpdatesSettings : Destination
 }
 
 internal val rootDestinations: List<Destination> = listOf(

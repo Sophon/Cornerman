@@ -1,7 +1,36 @@
 # BOT CHANGELOG
 
-## [v15.5.1] - TODO
+## [v16.5.1] - 2026-09-04
+- fixed long autocomplete choice breaking the whole list
+
+## [v16.5.0] - 2026-09-03
+- wrap all Kord calls with try-catch
+- changed label from EXAMPLES to HELP for consistency
+- fixed autocomplete OB field
+- `Wavu` - alias/altInput fixes
+
+## [v16.4.0] - 2026-09-02
+- autocomplete formatting
+
+## [v16.3.0] - 2026-09-01
+- streamline error embeds further
+
+## [v16.2.1] - 2026-08-30
+- streamline error embeds further
+
+## [v16.2.0] - 2026-08-30
+- error embeds reference slash commands
+
+## [v16.1.0] - 2026-08-30
+- autocomplete
+  - fixed bugs
+  - expand to more commands
+
+## [v16.0.0] - 2026-08-30
 - `Wavu` - stances are uppercase
+- all commands are now global
+  - removed game-specific `FD`, `Char`
+  - removed `Inv`
 
 ## [v15.5.0] - 2026-08-28
 - tagging attempts to extract command from query on error

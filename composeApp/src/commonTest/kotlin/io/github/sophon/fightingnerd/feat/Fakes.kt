@@ -13,10 +13,13 @@ import io.github.sophon.core.wiki.model.Filter
 import io.github.sophon.core.wiki.model.Move
 import io.github.sophon.core.wiki.model.RefreshEvent
 import io.github.sophon.core.wiki.model.WikiClient
+import io.github.sophon.fightingnerd.core.data.MediaRepo
+import io.github.sophon.fightingnerd.core.model.AppError
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -62,6 +65,18 @@ internal class FakeWikiClient(
 
     override suspend fun getLastUpdateTimeStamp(): Result<Instant?, WikiError> = error("not used")
     override fun getFiltersFor(game: Game): Set<Filter> = error("not used")
+}
+
+internal class FakeMediaRepo : MediaRepo {
+    val wipedGameIds = mutableListOf<String>()
+
+    override fun subscribeToCharsWithOfflineMedia(gameId: String): Flow<Set<CharacterId>> = flowOf(emptySet())
+    override suspend fun save(gameId: String, characterId: CharacterId, media: Move.Urls): EmptyResult<AppError> = Result.Success(Unit)
+    override suspend fun wipe(gameId: String) {
+        wipedGameIds.add(gameId)
+    }
+    override suspend fun wipe(gameId: String, characterId: CharacterId) = Unit
+    override suspend fun createUpdatedUrls(gameId: String, characterId: CharacterId, media: Move.Urls): Move.Urls = media
 }
 
 internal class FakeFeatureRepo(

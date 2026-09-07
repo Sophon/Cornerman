@@ -3,16 +3,20 @@ package io.github.sophon.fightingnerd.feat
 import io.github.sophon.fightingnerd.feat.home.ui.HomeVM
 import io.github.sophon.fightingnerd.feat.home.usecase.CheckCharacterHasMovesUseCase
 import io.github.sophon.fightingnerd.feat.home.usecase.CheckIfFirstLaunchUseCase
-import io.github.sophon.fightingnerd.feat.home.usecase.RefreshUseCase
+import io.github.sophon.fightingnerd.core.usecase.RefreshUseCase
 import io.github.sophon.fightingnerd.feat.home.usecase.SubscribeToCharacterListUseCase
 import io.github.sophon.fightingnerd.feat.home.usecase.SubscribeToGamesUseCase
 import io.github.sophon.fightingnerd.feat.module.domain.WikiClientFactory
 import io.github.sophon.fightingnerd.feat.module.usecase.LoadConfigUseCase
 import io.github.sophon.fightingnerd.feat.more.ui.MoreVM
 import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsVM
+import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesVM
 import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.ManualRefreshUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SaveFeatureConfigUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.SetUpdatePeriodUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToThemeUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToUpdatePeriodUseCase
 import io.github.sophon.fightingnerd.feat.move.ui.MoveListVM
 import io.github.sophon.fightingnerd.feat.move.usecase.DownloadMediaUseCase
 import io.github.sophon.fightingnerd.feat.move.usecase.GroupMovesUseCase
@@ -55,8 +59,12 @@ internal fun featureModule() = module {
     singleOf(::GetAvailableFeaturesUseCase)
     singleOf(::SubscribeToThemeUseCase)
     singleOf(::SaveFeatureConfigUseCase)
+    singleOf(::SubscribeToUpdatePeriodUseCase)
+    singleOf(::SetUpdatePeriodUseCase)
+    singleOf(::ManualRefreshUseCase)
 
     viewModelOf(::FeatureSettingsVM)
+    viewModelOf(::UpdatesVM)
     //endregion
 
     //region Move
@@ -87,9 +95,10 @@ internal fun featureModule() = module {
 
     //region Quiz
     viewModelOf(::QuizOverviewVM)
-    viewModel { (gameId: String, onExit: () -> Unit) ->
+    viewModel { (gameId: String, characterId: String, onExit: () -> Unit) ->
         QuizVM(
             gameId = gameId,
+            characterId = characterId,
             onExit = onExit,
             overlayService = get(),
             generateQuestionsUseCase = get(),
