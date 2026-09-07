@@ -63,7 +63,7 @@ internal class FakeWikiClient(
         return clearCacheResult
     }
 
-    override suspend fun getLastUpdateTimeStamp(): Result<Instant?, WikiError> = error("not used")
+    override fun subscribeToLastUpdateTimestamp(): Flow<Instant?> = flowOf(null)
     override fun getFiltersFor(game: Game): Set<Filter> = error("not used")
 }
 

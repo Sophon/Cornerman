@@ -2,6 +2,7 @@ package io.github.sophon.xko.data.db
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
 import io.github.sophon.core.wiki.data.CharacterDbAdapter
 import io.github.sophon.core.wiki.data.MoveDbAdapter
 import io.github.sophon.core.wiki.data.fromDomain
@@ -130,9 +131,11 @@ internal class XkoMoveDbAdapter(
         db.transaction { block() }
     }
 
-    override fun getLastUpdateTimestamp(): Instant? {
-        val millis = queries.selectLastInsertedAtForGame(gameId).executeAsOne().lastInsertedAt
-        val timestamp = millis?.let { Instant.fromEpochMilliseconds(it) }
-        return timestamp
+    override fun selectLastUpdateTimestampFlow(): Flow<Instant?> {
+        val flow = queries.selectLastInsertedAtForGame(gameId)
+            .asFlow()
+            .mapToOne(Dispatchers.IO)
+            .map { row -> row.lastInsertedAt?.let(Instant::fromEpochMilliseconds) }
+        return flow
     }
 }

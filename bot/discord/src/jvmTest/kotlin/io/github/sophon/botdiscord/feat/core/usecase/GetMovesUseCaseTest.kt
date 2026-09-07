@@ -189,7 +189,7 @@ class GetMovesUseCaseTest {
         }
 
         override fun refreshData(): Flow<RefreshEvent> = throw NotImplementedError("Not used in this use case")
-        override suspend fun getLastUpdateTimeStamp(): Result<Instant?, WikiError> = throw NotImplementedError("Not used in this use case")
+        override fun subscribeToLastUpdateTimestamp(): Flow<Instant?> = throw NotImplementedError("Not used in this use case")
         override suspend fun clearCache(): EmptyResult<WikiError> = throw NotImplementedError("Not used in this use case")
         override fun getFiltersFor(game: Game): Set<Filter> = emptySet()
     }

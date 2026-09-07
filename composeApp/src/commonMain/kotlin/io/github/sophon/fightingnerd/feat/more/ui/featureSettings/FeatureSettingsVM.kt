@@ -17,6 +17,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -147,7 +148,7 @@ internal class FeatureSettingsVM(
 
     private fun loadFeatures() {
         viewModelScope.launch {
-            getAvailableFeaturesUseCase.invoke()
+            getAvailableFeaturesUseCase.invoke().first()
                 .onSuccess { featureList ->
                     val list = featureList
                         .map { feature ->

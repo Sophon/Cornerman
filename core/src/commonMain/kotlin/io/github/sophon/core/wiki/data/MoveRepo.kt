@@ -17,7 +17,7 @@ interface MoveRepo {
     suspend fun refreshMoveList(character: Character): Result<Int, DataError>
     fun subscribeToMoveList(characterId: String): Flow<List<Move>>
     suspend fun wipeData(): EmptyResult<DataError>
-    suspend fun getLastUpdateTimestamp(): Result<Instant?, DataError>
+    fun subscribeToLastUpdateTimestamp(): Flow<Instant?>
 }
 
 @OptIn(ExperimentalTime::class)
@@ -57,16 +57,9 @@ class MoveRepoImpl(
         return flow
     }
 
-    override suspend fun getLastUpdateTimestamp(): Result<Instant?, DataError> {
-        val result = withContext(Dispatchers.IO) {
-            try {
-                val timestamp = dbAdapter.getLastUpdateTimestamp()
-                Result.Success(timestamp)
-            } catch (_: Exception) {
-                Result.Error(DataError.Local.UNKNOWN)
-            }
-        }
-        return result
+    override fun subscribeToLastUpdateTimestamp(): Flow<Instant?> {
+        val flow = dbAdapter.selectLastUpdateTimestampFlow()
+        return flow
     }
 
     override suspend fun wipeData(): EmptyResult<DataError> {

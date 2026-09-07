@@ -35,5 +35,5 @@ interface MoveDbAdapter {
     fun deleteExceededThreshold(characterId: String, threshold: Long)
     fun deleteAll()
     fun transaction(block: () -> Unit)
-    fun getLastUpdateTimestamp(): Instant?
+    fun selectLastUpdateTimestampFlow(): Flow<Instant?>
 }

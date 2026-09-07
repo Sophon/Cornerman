@@ -2,6 +2,7 @@ package io.github.sophon.wikidustloop.data.db
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
 import io.github.sophon.core.featureConfig.model.Game
 import io.github.sophon.core.wiki.data.CharacterDbAdapter
 import io.github.sophon.core.wiki.data.MoveDbAdapter
@@ -359,9 +360,11 @@ internal class DustLoopMoveDbAdapter(
         db.transaction { block() }
     }
 
-    override fun getLastUpdateTimestamp(): Instant? {
-        val millis = queries.selectLastInsertedAtForGame(game.id).executeAsOne().lastInsertedAt
-        val timestamp = millis?.let { Instant.fromEpochMilliseconds(it) }
-        return timestamp
+    override fun selectLastUpdateTimestampFlow(): Flow<Instant?> {
+        val flow = queries.selectLastInsertedAtForGame(game.id)
+            .asFlow()
+            .mapToOne(Dispatchers.IO)
+            .map { row -> row.lastInsertedAt?.let(Instant::fromEpochMilliseconds) }
+        return flow
     }
 }
