@@ -80,6 +80,7 @@ private val navConfig = SavedStateConfiguration {
             subclass(Destination.MoveDetail::class, Destination.MoveDetail.serializer())
             subclass(Destination.CharacterDetail::class, Destination.CharacterDetail.serializer())
             subclass(Destination.FeatureSettings::class, Destination.FeatureSettings.serializer())
+            subclass(Destination.UpdatesSettings::class, Destination.UpdatesSettings.serializer())
         }
     }
 }
