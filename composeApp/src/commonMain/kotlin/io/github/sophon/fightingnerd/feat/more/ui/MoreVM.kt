@@ -22,6 +22,7 @@ internal class MoreVM : ViewModel() {
         viewModelScope.launch {
             when (item) {
                 MoreItem.FeatureSettings -> _navEvent.send(item)
+                MoreItem.UpdatesSettings -> _navEvent.send(item)
             }
         }
     }

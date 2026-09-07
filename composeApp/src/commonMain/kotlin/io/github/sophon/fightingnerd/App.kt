@@ -54,6 +54,7 @@ import io.github.sophon.fightingnerd.feat.module.usecase.LoadConfigUseCase
 import io.github.sophon.fightingnerd.feat.more.model.MoreItem
 import io.github.sophon.fightingnerd.feat.more.ui.MoreScreen
 import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsScreen
+import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesScreen
 import io.github.sophon.fightingnerd.feat.move.ui.MoveListScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.overview.QuizOverviewScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.QuizScreen
@@ -211,30 +212,6 @@ private fun AppNavDisplay(
                     }
                 )
             }
-            entry<Destination.Search> {
-                PlaceholderScreen(label = "Search")
-            }
-            entry<Destination.Saved> {
-                PlaceholderScreen(label = "Saved")
-            }
-            entry<Destination.QuizOverview> {
-                QuizOverviewScreen(
-                    onNavigateToQuiz = { gameId, characterId ->
-                        backStack.add(Destination.Quiz(gameId = gameId, characterId = characterId))
-                    }
-                )
-            }
-            entry<Destination.More> {
-                MoreScreen(
-                    onNavigate = { moreItem ->
-                        when (moreItem) {
-                            MoreItem.FeatureSettings -> backStack.add(Destination.FeatureSettings)
-//                            MoreItem.Theme -> {/* no navigation */}
-                        }
-                    }
-                )
-            }
-
             entry<Destination.MoveList> { destination ->
                 MoveListScreen(
                     gameId = destination.gameId,
@@ -242,8 +219,13 @@ private fun AppNavDisplay(
                     onExit = { backStack.removeLastOrNull() },
                 )
             }
-            entry<Destination.FeatureSettings> {
-                FeatureSettingsScreen(onExit = { backStack.removeLastOrNull() })
+
+            entry<Destination.QuizOverview> {
+                QuizOverviewScreen(
+                    onNavigateToQuiz = { gameId, characterId ->
+                        backStack.add(Destination.Quiz(gameId = gameId, characterId = characterId))
+                    }
+                )
             }
             entry<Destination.Quiz> { destination ->
                 QuizScreen(
@@ -251,6 +233,25 @@ private fun AppNavDisplay(
                     characterId = destination.characterId,
                     onExit = { backStack.removeLastOrNull() },
                 )
+            }
+
+            entry<Destination.More> {
+                MoreScreen(
+                    onNavigate = { moreItem ->
+                        when (moreItem) {
+                            MoreItem.FeatureSettings -> backStack.add(Destination.FeatureSettings)
+                            MoreItem.UpdatesSettings -> backStack.add(Destination.UpdatesSettings)
+//                            MoreItem.Theme -> {/* no navigation */}
+                        }
+                    }
+                )
+            }
+
+            entry<Destination.FeatureSettings> {
+                FeatureSettingsScreen(onExit = { backStack.removeLastOrNull() })
+            }
+            entry<Destination.UpdatesSettings> {
+                UpdatesScreen(onExit = { backStack.removeLastOrNull() })
             }
         }
     )

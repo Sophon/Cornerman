@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fightingnerd.composeapp.generated.resources.Res
-import fightingnerd.composeapp.generated.resources.more_feature_settings_btn_save
+import fightingnerd.composeapp.generated.resources.general_save
 import io.github.sophon.fightingnerd.core.ui.components.TopBarButton
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import io.github.sophon.fightingnerd.theme.nerdColorPalette
@@ -134,7 +134,7 @@ private fun Header(
             enabled = isChanged,
         ) {
             Text(
-                text = stringResource(Res.string.more_feature_settings_btn_save).uppercase(),
+                text = stringResource(Res.string.general_save).uppercase(),
                 style = nerdTypography.labelLarge,
             )
         }

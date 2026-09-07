@@ -149,7 +149,24 @@ internal class FeatureSettingsVM(
         viewModelScope.launch {
             getAvailableFeaturesUseCase.invoke()
                 .onSuccess { featureList ->
-                    val list = featureList.toImmutableList()
+                    val list = featureList
+                        .map { feature ->
+                            FeatureSettingsState.UiFeatureSetting(
+                                featureName = feature.name,
+                                iconUrl = feature.iconUrl,
+                                version = feature.version,
+                                gameList = feature.gameList
+                                    .map { game ->
+                                        FeatureSettingsState.UiFeatureSetting.UiGame(
+                                            displayName = game.name,
+                                            id = game.id,
+                                            isEnabled = game.isEnabled,
+                                        )
+                                    }
+                                    .toImmutableList(),
+                            )
+                        }
+                        .toImmutableList()
                     _state.update { it.copy(currentFeatureList = list, updatedFeatureList = list) }
                 }
                 .onError { error ->

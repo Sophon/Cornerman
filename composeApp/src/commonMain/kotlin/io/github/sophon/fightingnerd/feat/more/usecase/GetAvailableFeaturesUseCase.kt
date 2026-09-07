@@ -8,8 +8,8 @@ import io.github.sophon.core.featureConfig.FeatureRepo
 import io.github.sophon.core.featureConfig.model.Game
 import io.github.sophon.core.wiki.model.WikiClient
 import io.github.sophon.fightingnerd.feat.more.KEY_PREFIX_FEATURE
+import io.github.sophon.fightingnerd.feat.more.model.FeatureSetting
 import io.github.sophon.fightingnerd.feat.more.model.SettingsError
-import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsState.UiFeatureSetting
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.first
 import kotlinx.io.IOException
@@ -18,7 +18,7 @@ internal class GetAvailableFeaturesUseCase(
     private val featureRepo: FeatureRepo,
     private val store: DataStore<Preferences>,
 ) {
-    suspend fun invoke(): Result<List<UiFeatureSetting>, SettingsError> {
+    suspend fun invoke(): Result<List<FeatureSetting>, SettingsError> {
         val gameClients: Map<Game, WikiClient> = featureRepo.getGameClients()
         val grouped = gameClients.entries.groupBy { it.value.featureInfo.name }
 
@@ -27,19 +27,25 @@ internal class GetAvailableFeaturesUseCase(
             is Result.Error -> emptyMap()
         }
 
-        //TODO: do we really want to return Ui stuff????
         val list = grouped.map { (_, entries) ->
-            val featureInfo = entries.first().value.featureInfo
-            UiFeatureSetting(
-                featureName = featureInfo.name,
+            val wikiClient = entries.first().value
+            val featureInfo = wikiClient.featureInfo
+            val lastUpdate = when (val lastUpdateResult = wikiClient.getLastUpdateTimeStamp()) {
+                is Result.Success -> lastUpdateResult.data
+                is Result.Error -> null
+            }
+
+            FeatureSetting(
+                name = featureInfo.name,
                 iconUrl = featureInfo.iconUrl.orEmpty(),
                 version = featureInfo.version,
                 gameList = entries
                     .map { (game, _) ->
-                        UiFeatureSetting.UiGame(
-                            displayName = game.displayName,
+                        FeatureSetting.FeatureGame(
+                            name = game.displayName,
                             id = game.id,
                             isEnabled = gameConfigMap[game.id] ?: false,
+                            lastUpdatedTimeStamp = lastUpdate,
                         )
                     }
                     .toImmutableList(),

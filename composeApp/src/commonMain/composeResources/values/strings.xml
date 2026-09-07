@@ -3,6 +3,10 @@
 <resources>
     <string name="general_confirm">Confirm</string>
     <string name="general_dismiss">Dismiss</string>
+    <string name="general_save">Save</string>
+    <string name="general_unit_hour">Hours</string>
+    <string name="general_unit_day">Days</string>
+    <string name="general_unit_month">Months</string>
 
     <string name="home_refresh_refreshing">Refreshing...</string>
     <string name="home_refresh_success">%1$s: %2$d chars refreshed</string>
@@ -92,11 +96,15 @@
     <string name="more_theme_dialog_dark">Dark</string>
     <string name="more_theme_dialog_light">Light</string>
     <string name="more_item_feature_settings">Feature settings</string>
+    <string name="more_item_data_update_settings">Updates settings</string>
     <string name="more_donate">Tip the developer</string>
-    <string name="more_feature_settings_btn_save">Save</string>
     <string name="more_feature_settings_dialog_title">Are you sure?</string>
     <string name="more_feature_settings_dialog_desc">Disabling a game wipes its offline data.</string>
     <string name="more_feature_settings_dialog_btn_wipe">Confirm wipe</string>
+    <string name="more_updates_settings_auto_update_title">Automatically update</string>
+    <string name="more_updates_settings_auto_update_desc">Periodically fetch data from wikis.</string>
+    <string name="more_updates_settings_period_label">Update period</string>
+    <string name="more_updates_settings_last_updated">Last update: %1$s</string>
 
     <string name="payment_tip_dialog_title">Thanks!</string>
     <string name="payment_tip_dialog_description">Your support is not required but highly appreciated.</string>

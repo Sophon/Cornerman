@@ -2,10 +2,6 @@
 
 ## High prio
 
-- `More` 
-  - Update settings
-    - frequency, last updated time, update individual games
-    - Media status?
 
 ## Low prio
 

@@ -11,6 +11,8 @@ import io.github.sophon.core.wiki.data.readStoredFingerprint
 import io.github.sophon.core.wiki.data.storeFingerprint
 import io.github.sophon.fightingnerd.core.domain.UrlOpener
 import io.github.sophon.fightingnerd.core.domain.UrlOpenerAnd
+import io.github.sophon.fightingnerd.feat.scheduler.Scheduler
+import io.github.sophon.fightingnerd.feat.scheduler.WorkManagerScheduler
 import io.github.sophon.fightingnerd.infrastructure.createDataStore
 import okio.Path
 import okio.Path.Companion.toOkioPath
@@ -24,6 +26,7 @@ internal actual val platformModule = module {
     single { createDataStore() }
 
     singleOf(::UrlOpenerAnd).bind<UrlOpener>()
+    singleOf(::WorkManagerScheduler).bind<Scheduler>()
 
     single<Path> { androidContext().filesDir.toOkioPath() / "media" }
 
