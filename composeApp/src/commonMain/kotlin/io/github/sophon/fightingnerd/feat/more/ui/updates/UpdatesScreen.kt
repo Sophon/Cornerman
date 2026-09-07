@@ -1,6 +1,7 @@
 package io.github.sophon.fightingnerd.feat.more.ui.updates
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +37,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fightingnerd.composeapp.generated.resources.Res
@@ -91,9 +97,13 @@ private fun Content(
     onRefreshGame: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = { focusManager.clearFocus() })
+            }
             .padding(
                 horizontal = nerdDimensions.screenPaddingHorizontal,
                 vertical = nerdDimensions.screenPaddingVertical,
@@ -234,12 +244,27 @@ private fun PeriodRow(
             horizontalArrangement = Arrangement.spacedBy(nerdDimensions.inlineGap),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            var textFieldValue by remember(period) {
+                val text = period?.toString().orEmpty()
+                mutableStateOf(TextFieldValue(text, TextRange(text.length)))
+            }
             OutlinedTextField(
-                value = period?.toString().orEmpty(),
-                onValueChange = onSetPeriod,
+                value = textFieldValue,
+                onValueChange = { newValue ->
+                    textFieldValue = newValue
+                    onSetPeriod(newValue.text)
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
-                modifier = Modifier.size(width = 60.dp, height = 50.dp),
+                modifier = Modifier
+                    .size(width = 60.dp, height = 50.dp)
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            textFieldValue = textFieldValue.copy(
+                                selection = TextRange(0, textFieldValue.text.length),
+                            )
+                        }
+                    },
             )
 
             var expanded by remember { mutableStateOf(false) }
