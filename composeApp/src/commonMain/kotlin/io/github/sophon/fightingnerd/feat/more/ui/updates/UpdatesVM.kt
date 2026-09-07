@@ -30,7 +30,7 @@ internal class UpdatesVM(
     private val _state = MutableStateFlow(UpdatesState())
     val state = _state
         .onStart {
-            viewModelScope.launch { loadFeatureList() }
+            subscribeToFeatureList()
             subscribeToAutoUpdateSetting()
         }
         .stateIn(
@@ -80,7 +80,6 @@ internal class UpdatesVM(
                     overlayService.show(error)
                 }
             setFeatureRefreshing(name = name, isRefreshing = false)
-            loadFeatureList()
         }
     }
 
@@ -96,7 +95,6 @@ internal class UpdatesVM(
                     overlayService.show(error)
                 }
             setGameRefreshing(gameId = gameId, isRefreshing = false)
-            loadFeatureList()
         }
     }
 
@@ -146,47 +144,51 @@ internal class UpdatesVM(
     }
 
 
-    private suspend fun loadFeatureList() {
-        getAvailableFeaturesUseCase.invoke()
-            .onSuccess { featureList ->
-                _state.update { current ->
-                    val refreshingGames = current.featureList
-                        .flatMap { it.gameList }
-                        .filter { it.isRefreshing }
-                        .map { it.id }
-                        .toSet()
+    private fun subscribeToFeatureList() {
+        viewModelScope.launch {
+            getAvailableFeaturesUseCase.invoke().collect { result ->
+                result
+                    .onSuccess { featureList ->
+                        _state.update { current ->
+                            val refreshingGames = current.featureList
+                                .flatMap { it.gameList }
+                                .filter { it.isRefreshing }
+                                .map { it.id }
+                                .toSet()
 
-                    val uiList = featureList
-                        .mapNotNull { feature ->
-                            val enabledGames = feature.gameList
-                                .mapNotNull { game ->
-                                    val timestamp = game.lastUpdatedTimeStamp
-                                    if (game.isEnabled.not() || timestamp == null) return@mapNotNull null
+                            val uiList = featureList
+                                .mapNotNull { feature ->
+                                    val enabledGames = feature.gameList
+                                        .mapNotNull { game ->
+                                            val timestamp = game.lastUpdatedTimeStamp
+                                            if (game.isEnabled.not() || timestamp == null) return@mapNotNull null
 
-                                    val uiGame = UpdatesState.UiFeatureSetting.UiGame(
-                                        name = game.name,
-                                        id = game.id,
-                                        lastUpdatedTimeStamp = timestamp.toHumanReadableString(),
-                                        isRefreshing = game.id in refreshingGames,
+                                            val uiGame = UpdatesState.UiFeatureSetting.UiGame(
+                                                name = game.name,
+                                                id = game.id,
+                                                lastUpdatedTimeStamp = timestamp.toHumanReadableString(),
+                                                isRefreshing = game.id in refreshingGames,
+                                            )
+                                            uiGame
+                                        }
+                                    if (enabledGames.isEmpty()) return@mapNotNull null
+                                    val uiFeature = UpdatesState.UiFeatureSetting(
+                                        name = feature.name,
+                                        iconUrl = feature.iconUrl,
+                                        version = feature.version,
+                                        gameList = enabledGames.toImmutableList(),
                                     )
-                                    uiGame
+                                    uiFeature
                                 }
-                            if (enabledGames.isEmpty()) return@mapNotNull null
-                            val uiFeature = UpdatesState.UiFeatureSetting(
-                                name = feature.name,
-                                iconUrl = feature.iconUrl,
-                                version = feature.version,
-                                gameList = enabledGames.toImmutableList(),
-                            )
-                            uiFeature
+                                .toImmutableList()
+                            current.copy(featureList = uiList)
                         }
-                        .toImmutableList()
-                    current.copy(featureList = uiList)
-                }
+                    }
+                    .onError { error ->
+                        Napier.e(tag = TAG) { "subscribeToFeatureList: $error" }
+                    }
             }
-            .onError { error ->
-                Napier.e(tag = TAG) { "loadFeatureList: $error" }
-            }
+        }
     }
 
     private fun subscribeToAutoUpdateSetting() {

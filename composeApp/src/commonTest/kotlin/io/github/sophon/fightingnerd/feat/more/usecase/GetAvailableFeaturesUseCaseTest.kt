@@ -12,6 +12,7 @@ import io.github.sophon.fightingnerd.feat.FakeFeatureRepo
 import io.github.sophon.fightingnerd.feat.FakeWikiClient
 import io.github.sophon.fightingnerd.feat.more.util.featureKey
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -53,7 +54,7 @@ internal class GetAvailableFeaturesUseCaseTest {
         val expectedGameOrder = listOf(Game.Tekken8.id, Game.StreetFighter6.id, Game.MK1.id)
 
         // when
-        val result = usecase.invoke()
+        val result = usecase.invoke().first()
 
         // then
         assertThat(result).isInstanceOf(Result.Success::class)
@@ -72,7 +73,7 @@ internal class GetAvailableFeaturesUseCaseTest {
         val usecase = GetAvailableFeaturesUseCase(repo, store)
 
         // when
-        val result = usecase.invoke()
+        val result = usecase.invoke().first()
 
         // then
         val list = (result as Result.Success).data
