@@ -13,6 +13,8 @@ import io.github.sophon.fightingnerd.core.domain.UrlOpener
 import io.github.sophon.fightingnerd.core.domain.UrlOpenerAnd
 import io.github.sophon.fightingnerd.feat.scheduler.Scheduler
 import io.github.sophon.fightingnerd.feat.scheduler.WorkManagerScheduler
+import io.github.sophon.fightingnerd.feat.share.ShareSheet
+import io.github.sophon.fightingnerd.feat.share.ShareSheetAnd
 import io.github.sophon.fightingnerd.infrastructure.createDataStore
 import okio.Path
 import okio.Path.Companion.toOkioPath
@@ -27,6 +29,7 @@ internal actual val platformModule = module {
 
     singleOf(::UrlOpenerAnd).bind<UrlOpener>()
     singleOf(::WorkManagerScheduler).bind<Scheduler>()
+    singleOf(::ShareSheetAnd).bind<ShareSheet>()
 
     single<Path> { androidContext().filesDir.toOkioPath() / "media" }
 
