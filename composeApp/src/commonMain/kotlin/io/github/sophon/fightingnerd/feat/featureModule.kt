@@ -1,8 +1,12 @@
 package io.github.sophon.fightingnerd.feat
 
 import io.github.sophon.fightingnerd.core.usecase.RefreshUseCase
+import io.github.sophon.fightingnerd.feat.changelog.ChangelogClient
+import io.github.sophon.fightingnerd.feat.changelog.ChangelogClientImpl
 import io.github.sophon.fightingnerd.feat.changelog.data.ChangelogRemoteSource
 import io.github.sophon.fightingnerd.feat.changelog.data.ChangelogRemoteSourceImpl
+import io.github.sophon.fightingnerd.feat.changelog.usecase.GetUnseenReleaseUseCase
+import io.github.sophon.fightingnerd.feat.changelog.usecase.SaveReleaseAsSeenUseCase
 import io.github.sophon.fightingnerd.feat.home.ui.HomeVM
 import io.github.sophon.fightingnerd.feat.home.usecase.CheckCharacterHasMovesUseCase
 import io.github.sophon.fightingnerd.feat.home.usecase.CheckIfFirstLaunchUseCase
@@ -120,5 +124,8 @@ internal fun featureModule() = module {
 
     //region Changelog
     singleOf(::ChangelogRemoteSourceImpl).bind<ChangelogRemoteSource>()
+    singleOf(::SaveReleaseAsSeenUseCase)
+    singleOf(::GetUnseenReleaseUseCase)
+    singleOf(::ChangelogClientImpl).bind<ChangelogClient>()
     //endregion
 }
