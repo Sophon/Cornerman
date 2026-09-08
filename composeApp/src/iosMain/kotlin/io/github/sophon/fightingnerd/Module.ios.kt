@@ -14,7 +14,7 @@ import io.github.sophon.fightingnerd.core.domain.UrlOpenerIos
 import io.github.sophon.fightingnerd.feat.scheduler.BGTaskScheduler
 import io.github.sophon.fightingnerd.feat.scheduler.Scheduler
 import io.github.sophon.fightingnerd.feat.share.ShareSheet
-import io.github.sophon.fightingnerd.feat.share.ShareSheetIos
+import io.github.sophon.fightingnerd.feat.share.ShareSheetImpl
 import io.github.sophon.fightingnerd.infrastructure.createDataStore
 import okio.Path
 import okio.Path.Companion.toPath
@@ -31,7 +31,8 @@ internal actual val platformModule = module {
     single { createDataStore() }
     singleOf(::UrlOpenerIos).bind<UrlOpener>()
     singleOf(::BGTaskScheduler).bind<Scheduler>()
-    singleOf(::ShareSheetIos).bind<ShareSheet>()
+    singleOf(::ShareSheetImpl).bind<ShareSheet>()
+
 
     single<Path> {
         val dirs = NSSearchPathForDirectoriesInDomains(

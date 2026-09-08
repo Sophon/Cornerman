@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 
-internal class ShareSheetAnd(
+internal class ShareSheetImpl(
     private val context: Context,
 ) : ShareSheet {
 

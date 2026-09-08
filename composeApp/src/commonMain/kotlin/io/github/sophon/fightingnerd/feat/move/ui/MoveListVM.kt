@@ -34,6 +34,7 @@ import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -63,6 +64,8 @@ internal class MoveListVM(
     private val _state = MutableStateFlow(MoveListState())
     private val _fullMoveList = MutableStateFlow(MoveCache.EMPTY)
     private val _downloadProgress = MutableStateFlow<Int?>(null)
+    private val _pendingShareMoveId = MutableStateFlow<String?>(null)
+    val pendingShareMoveId: StateFlow<String?> = _pendingShareMoveId.asStateFlow()
     private var groupList: ImmutableList<Group> = persistentListOf()
 
     val state: StateFlow<MoveListState> = combine(
@@ -216,7 +219,11 @@ internal class MoveListVM(
     }
 
     fun onShare(moveId: String) {
-        //TODO
+        _pendingShareMoveId.value = moveId
+    }
+
+    fun onSharedDone() {
+        _pendingShareMoveId.value = null
     }
 
 

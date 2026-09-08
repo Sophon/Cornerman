@@ -15,7 +15,7 @@ import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
-internal class ShareSheetIos : ShareSheet {
+internal class ShareSheetImpl : ShareSheet {
 
     override suspend fun shareImage(pngBytes: ByteArray, fileName: String) {
         val fileUrl = withContext(Dispatchers.IO) {
