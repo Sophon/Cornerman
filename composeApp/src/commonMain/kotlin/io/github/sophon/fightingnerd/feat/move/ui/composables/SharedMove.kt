@@ -130,6 +130,7 @@ private fun Details(
             uiMove.urls.hitboxImageList.isNotEmpty() -> {
                 ImageCarousel(
                     imageList = uiMove.urls.hitboxImageList,
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(Modifier.height(nerdDimensions.componentPaddingTight))

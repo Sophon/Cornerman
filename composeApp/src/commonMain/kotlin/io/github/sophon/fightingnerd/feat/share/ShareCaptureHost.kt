@@ -2,6 +2,7 @@ package io.github.sophon.fightingnerd.feat.share
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.withFrameNanos
@@ -27,6 +28,7 @@ internal fun ShareCaptureHost(
         modifier = modifier
             .alpha(0f)
             .width(ShareCardWidth)
+            .wrapContentHeight(unbounded = true)
             .drawWithContent {
                 graphicsLayer.record {
                     this@drawWithContent.drawContent()
