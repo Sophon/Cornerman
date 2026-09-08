@@ -1,7 +1,6 @@
 package io.github.sophon.fightingnerd.feat.move.ui.composables
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,22 +33,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import coil3.compose.SubcomposeAsyncImage
 import fightingnerd.composeapp.generated.resources.Res
 import fightingnerd.composeapp.generated.resources.move_list_field_damage
 import fightingnerd.composeapp.generated.resources.move_list_field_guard
 import fightingnerd.composeapp.generated.resources.move_list_field_on_block
 import fightingnerd.composeapp.generated.resources.move_list_field_on_hit
 import fightingnerd.composeapp.generated.resources.move_list_field_startup
-import io.github.sophon.fightingnerd.core.ui.components.CircularLoader
 import io.github.sophon.fightingnerd.core.ui.components.IconAction
 import io.github.sophon.fightingnerd.core.ui.components.IconActionButton
 import io.github.sophon.fightingnerd.core.ui.components.ImageCarousel
 import io.github.sophon.fightingnerd.feat.move.model.Property
 import io.github.sophon.fightingnerd.feat.move.ui.UiMove
-import io.github.sophon.fightingnerd.feat.move.ui.icon
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.components.VideoPlayer
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import io.github.sophon.fightingnerd.theme.nerdColorPalette
@@ -60,8 +53,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val COUNT_MAX_PER_ROW = 3

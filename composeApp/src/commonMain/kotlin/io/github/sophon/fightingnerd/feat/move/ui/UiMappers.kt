@@ -30,10 +30,10 @@ import fightingnerd.composeapp.generated.resources.move_list_field_startup
 import io.github.sophon.core.util.stripMarkdownLinks
 import io.github.sophon.core.wiki.model.Move
 import io.github.sophon.fightingnerd.feat.move.model.Property
-import io.github.sophon.wikidustloop.integration.model.BBMoveProperties
-import io.github.sophon.wikidustloop.integration.model.GBVSRMoveProperties
 import io.github.sophon.wikiSuperCombo.integration.model.AVLProperties
 import io.github.sophon.wikiSuperCombo.integration.model.SF6MoveProperties
+import io.github.sophon.wikidustloop.integration.model.BBMoveProperties
+import io.github.sophon.wikidustloop.integration.model.GBVSRMoveProperties
 import io.github.sophon.wikiwavu.integration.model.T8Properties
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet

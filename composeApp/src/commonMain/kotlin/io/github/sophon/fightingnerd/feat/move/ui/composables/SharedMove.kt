@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import fightingnerd.composeapp.generated.resources.Res
 import fightingnerd.composeapp.generated.resources.ic_fighting_nerd
 import fightingnerd.composeapp.generated.resources.move_list_field_damage
