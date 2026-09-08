@@ -9,12 +9,6 @@
   - `if (newestVersionCode > seenVersionCode)` query `https://api.github.com/repos/Sophon/FightingNerd/releases`
   - display dialog
 - ratings prompt
-- image of a move
-  - move composable has a share button
-  - on click, render that move card
-  - render bitmap
-  - Share
-
 
 ## Low prio
 
