@@ -4,6 +4,12 @@
 
 - new Icon
 - ratings prompt
+  - OS provided API
+  - conditions:
+    - after X launches
+    - after Sharing
+    - NEVER in move list
+  - keep track of cooldown
 
 ## Low prio
 
