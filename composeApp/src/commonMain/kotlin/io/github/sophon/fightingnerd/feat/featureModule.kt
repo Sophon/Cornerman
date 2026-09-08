@@ -1,6 +1,8 @@
 package io.github.sophon.fightingnerd.feat
 
 import io.github.sophon.fightingnerd.core.usecase.RefreshUseCase
+import io.github.sophon.fightingnerd.feat.changelog.data.ChangelogRemoteSource
+import io.github.sophon.fightingnerd.feat.changelog.data.ChangelogRemoteSourceImpl
 import io.github.sophon.fightingnerd.feat.home.ui.HomeVM
 import io.github.sophon.fightingnerd.feat.home.usecase.CheckCharacterHasMovesUseCase
 import io.github.sophon.fightingnerd.feat.home.usecase.CheckIfFirstLaunchUseCase
@@ -36,6 +38,7 @@ import io.github.sophon.fightingnerd.feat.quiz.usecase.SubscribeGameWidgetsUseCa
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 internal fun featureModule() = module {
@@ -113,5 +116,9 @@ internal fun featureModule() = module {
     singleOf(::GetTipOptionsUseCase)
     singleOf(::PurchaseTipUseCase)
     viewModelOf(::TipVM)
+    //endregion
+
+    //region Changelog
+    singleOf(::ChangelogRemoteSourceImpl).bind<ChangelogRemoteSource>()
     //endregion
 }
