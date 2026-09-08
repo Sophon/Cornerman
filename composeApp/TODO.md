@@ -2,12 +2,7 @@
 
 ## High prio
 
-- new Icon 
-- Changelog
-  - store last seen versionCode to DataStore
-  - on launch, check
-  - `if (newestVersionCode > seenVersionCode)` query `https://api.github.com/repos/Sophon/FightingNerd/releases`
-  - display dialog
+- new Icon
 - ratings prompt
 
 ## Low prio
