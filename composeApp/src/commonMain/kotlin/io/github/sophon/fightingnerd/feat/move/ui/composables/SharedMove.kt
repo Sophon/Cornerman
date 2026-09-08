@@ -1,5 +1,6 @@
 package io.github.sophon.fightingnerd.feat.move.ui.composables
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -17,7 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import fightingnerd.composeapp.generated.resources.Res
+import fightingnerd.composeapp.generated.resources.ic_fighting_nerd
 import fightingnerd.composeapp.generated.resources.move_list_field_damage
 import fightingnerd.composeapp.generated.resources.move_list_field_guard
 import fightingnerd.composeapp.generated.resources.move_list_field_on_block
@@ -33,6 +39,7 @@ import io.github.sophon.fightingnerd.theme.nerdTypography
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -72,6 +79,9 @@ internal fun SharedMove(
         if (isExpanded) {
             Details(uiMove)
         }
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
+
+        Credits()
     }
 }
 
@@ -166,6 +176,30 @@ private fun Details(
     }
 }
 
+@Composable
+private fun Credits(
+    modifier: Modifier = Modifier
+) {
+   Row(
+       horizontalArrangement = Arrangement.End,
+       verticalAlignment = Alignment.Bottom,
+       modifier = modifier.fillMaxWidth(),
+   ) {
+       Text(
+           text = "Fighting Nerd",
+           style = nerdTypography.labelMedium,
+           color = nerdColorPalette.textTertiary,
+       )
+       Spacer(Modifier.width(nerdDimensions.inlineGapTight))
+
+       Image(
+           painter = painterResource(Res.drawable.ic_fighting_nerd),
+           contentDescription = null,
+           modifier = Modifier.size(nerdDimensions.iconInline),
+       )
+   }
+}
+
 
 private const val COUNT_MAX_PER_ROW = 3
 
@@ -201,6 +235,7 @@ private fun CollapsedSharedMovePreview() {
         SharedMove(
             uiMove = previewMove,
             isExpanded = false,
+            modifier = Modifier.wrapContentHeight(unbounded = true),
         )
     }
 }
@@ -212,6 +247,7 @@ private fun ExpandedSharedMovePreview() {
         SharedMove(
             uiMove = previewMove,
             isExpanded = true,
+            modifier = Modifier.wrapContentHeight(unbounded = true),
         )
     }
 }
