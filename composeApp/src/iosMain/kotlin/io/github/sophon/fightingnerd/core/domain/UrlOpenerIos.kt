@@ -5,7 +5,7 @@ import platform.UIKit.UIApplication
 
 internal class UrlOpenerIos: UrlOpener {
     override fun openUrl(url: String) {
-        val nsUrl = NSURL(string = url) ?: return
+        val nsUrl = NSURL(string = url)
         UIApplication.sharedApplication.openURL(nsUrl)
     }
 }

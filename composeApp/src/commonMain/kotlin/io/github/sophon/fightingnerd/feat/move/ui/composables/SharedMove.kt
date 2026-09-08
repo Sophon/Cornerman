@@ -1,9 +1,7 @@
 package io.github.sophon.fightingnerd.feat.move.ui.composables
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -14,69 +12,44 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Notes
-import androidx.compose.material.icons.outlined.ExpandMore
-import androidx.compose.material.icons.outlined.Image
-import androidx.compose.material.icons.outlined.Share
-import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import fightingnerd.composeapp.generated.resources.Res
+import fightingnerd.composeapp.generated.resources.ic_fighting_nerd
 import fightingnerd.composeapp.generated.resources.move_list_field_damage
 import fightingnerd.composeapp.generated.resources.move_list_field_guard
 import fightingnerd.composeapp.generated.resources.move_list_field_on_block
 import fightingnerd.composeapp.generated.resources.move_list_field_on_hit
 import fightingnerd.composeapp.generated.resources.move_list_field_startup
-import io.github.sophon.fightingnerd.core.ui.components.IconAction
-import io.github.sophon.fightingnerd.core.ui.components.IconActionButton
 import io.github.sophon.fightingnerd.core.ui.components.ImageCarousel
 import io.github.sophon.fightingnerd.feat.move.model.Property
 import io.github.sophon.fightingnerd.feat.move.ui.UiMove
-import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.components.VideoPlayer
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import io.github.sophon.fightingnerd.theme.nerdColorPalette
 import io.github.sophon.fightingnerd.theme.nerdDimensions
 import io.github.sophon.fightingnerd.theme.nerdTypography
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-private const val COUNT_MAX_PER_ROW = 3
-
 @Composable
-internal fun MoveItem(
+internal fun SharedMove(
     uiMove: UiMove,
-    onMoveClick: () -> Unit,
-    onShareClick: (id: String) -> Unit,
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isExpandable = remember { uiMove.isExpandable() }
-
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(
-                enabled = isExpandable,
-                interactionSource = interactionSource,
-                onClick = onMoveClick,
-                indication = ripple(color = MaterialTheme.colorScheme.primaryContainer)
-            )
             .clip(RoundedCornerShape(nerdDimensions.cornerDefault))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(nerdDimensions.componentPadding)
@@ -85,7 +58,6 @@ internal fun MoveItem(
             input = uiMove.input,
             name = uiMove.name,
             propertySet = uiMove.propertySet,
-            onShare = { onShareClick(uiMove.id) },
         )
 
         FlowRow(
@@ -103,18 +75,12 @@ internal fun MoveItem(
             }
         }
 
-        if (isExpandable) {
-            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-            ExpansionIndicator(
-                isExpanded = isExpanded,
-                urls = uiMove.urls,
-                notes = uiMove.notes,
-            )
-
-            if (isExpanded) {
-                Details(uiMove)
-            }
+        if (isExpanded) {
+            Details(uiMove)
         }
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
+
+        Credits()
     }
 }
 
@@ -123,32 +89,16 @@ private fun Header(
     input: String,
     name: String?,
     propertySet: ImmutableSet<Property>,
-    onShare: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = input,
-                style = nerdTypography.titleLarge,
-                color = nerdColorPalette.textPrimary,
-                maxLines = 2,
-                modifier = Modifier.weight(1f),
-            )
-
-            IconActionButton(
-                action = IconAction(
-                    icon = Icons.Outlined.Share,
-                    onClick = onShare,
-                ),
-                tint = nerdColorPalette.textSecondary,
-                modifier = Modifier.size(nerdDimensions.iconInline),
-            )
-        }
+        Text(
+            text = input,
+            style = nerdTypography.titleLarge,
+            color = nerdColorPalette.textPrimary,
+            maxLines = 2,
+            modifier = Modifier.fillMaxWidth(),
+        )
         Spacer(Modifier.height(nerdDimensions.componentGapTight))
 
         Row(
@@ -185,11 +135,6 @@ private fun Details(
     Column(
         modifier = modifier,
     ) {
-        uiMove.urls.videoUrl?.let { videoUrl ->
-            VideoPlayer(videoUrl)
-            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-        }
-
         when {
             uiMove.urls.hitboxImageList.isNotEmpty() -> {
                 ImageCarousel(
@@ -206,11 +151,11 @@ private fun Details(
         }
 
         FlowRow(
+            maxItemsInEachRow = COUNT_MAX_PER_ROW,
+            verticalArrangement = Arrangement.spacedBy(nerdDimensions.componentPaddingTight),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(nerdDimensions.inlineGapTight),
-            maxItemsInEachRow = COUNT_MAX_PER_ROW,
-            verticalArrangement = Arrangement.spacedBy(nerdDimensions.componentPaddingTight),
         ) {
             uiMove.optionalFields.forEach { field ->
                 FieldColumn(
@@ -231,65 +176,35 @@ private fun Details(
 }
 
 @Composable
-private fun ExpansionIndicator(
-    isExpanded: Boolean,
-    urls: UiMove.Urls,
-    notes: ImmutableList<String>,
+private fun Credits(
     modifier: Modifier = Modifier
 ) {
-    val chevronFlip by animateFloatAsState(
-        targetValue = if (isExpanded) -1f else 1f,
-        label = "chevronFlip",
-    )
+   Row(
+       horizontalArrangement = Arrangement.End,
+       verticalAlignment = Alignment.Bottom,
+       modifier = modifier.fillMaxWidth(),
+   ) {
+       Text(
+           text = "Fighting Nerd",
+           style = nerdTypography.labelMedium,
+           color = nerdColorPalette.textTertiary,
+       )
+       Spacer(Modifier.width(nerdDimensions.inlineGapTight))
 
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Row {
-            if (urls.moveImageList.isNotEmpty()) {
-                Icon(
-                    imageVector = Icons.Outlined.Image,
-                    contentDescription = null,
-                    tint = nerdColorPalette.textPrimary,
-                    modifier = Modifier.size(nerdDimensions.iconInline)
-                )
-            }
-
-            if (urls.videoUrl != null) {
-                Icon(
-                    imageVector = Icons.Outlined.Videocam,
-                    contentDescription = null,
-                    tint = nerdColorPalette.textPrimary,
-                    modifier = Modifier.size(nerdDimensions.iconInline)
-                )
-            }
-
-            if (notes.isNotEmpty()) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.Notes,
-                    contentDescription = null,
-                    tint = nerdColorPalette.textPrimary,
-                    modifier = Modifier.size(nerdDimensions.iconInline)
-                )
-            }
-            Spacer(Modifier.width(nerdDimensions.inlineGap))
-        }
-
-        Icon(
-            imageVector = Icons.Outlined.ExpandMore,
-            contentDescription = null,
-            tint = nerdColorPalette.textPrimary,
-            modifier = Modifier
-                .size(nerdDimensions.iconInline)
-                .graphicsLayer { scaleY = chevronFlip }
-        )
-    }
+       Image(
+           painter = painterResource(Res.drawable.ic_fighting_nerd),
+           contentDescription = null,
+           modifier = Modifier.size(nerdDimensions.iconInline),
+       )
+   }
 }
 
 
+private const val COUNT_MAX_PER_ROW = 3
+
+
 //region PREVIEW
-private val videoMove = UiMove(
+private val previewMove = UiMove(
     id = "nina-hub1",
     input = "H.ub1",
     name = "Neck Hunter: Villain",
@@ -303,7 +218,7 @@ private val videoMove = UiMove(
     ),
     optionalFields = persistentListOf(),
     urls = UiMove.Urls(
-        videoUrl = "video",
+        hitboxImageList = persistentListOf("a", "b"),
     ),
     notes = persistentListOf(
         "Strong Aerial Tailspin",
@@ -312,61 +227,26 @@ private val videoMove = UiMove(
     ),
 )
 
-private val imageMove = UiMove(
-    id = "nina-hub1",
-    input = "H.ub1",
-    name = "Neck Hunter: Villain",
-    coreFields = persistentListOf(
-        UiMove.Field(Res.string.move_list_field_startup, "i24"),
-        UiMove.Field(Res.string.move_list_field_guard, "h"),
-        UiMove.Field(Res.string.move_list_field_damage, "25"),
-        UiMove.Field(Res.string.move_list_field_on_block, "+8"),
-        UiMove.Field(Res.string.move_list_field_on_hit, "+60a"),
-    ),
-    optionalFields = persistentListOf(),
-    urls = UiMove.Urls(
-        hitboxImageList = persistentListOf("a", "b"),
-    ),
-    notes = persistentListOf(
-        "Something",
-    ),
-)
-
 @Preview
 @Composable
-private fun CollapsedItemPreview() {
+private fun CollapsedSharedMovePreview() {
     FightingNerdTheme {
-        MoveItem(
-            uiMove = videoMove,
-            onMoveClick = {},
-            onShareClick = {},
+        SharedMove(
+            uiMove = previewMove,
             isExpanded = false,
+            modifier = Modifier.wrapContentHeight(unbounded = true),
         )
     }
 }
 
 @Preview
 @Composable
-private fun ExpandedVideoItemPreview() {
+private fun ExpandedSharedMovePreview() {
     FightingNerdTheme {
-        MoveItem(
-            uiMove = videoMove,
-            onMoveClick = {},
-            onShareClick = {},
+        SharedMove(
+            uiMove = previewMove,
             isExpanded = true,
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun ExpandedImageItemPreview() {
-    FightingNerdTheme {
-        MoveItem(
-            uiMove = imageMove,
-            onMoveClick = {},
-            onShareClick = {},
-            isExpanded = true,
+            modifier = Modifier.wrapContentHeight(unbounded = true),
         )
     }
 }

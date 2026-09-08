@@ -40,12 +40,17 @@ import io.github.sophon.fightingnerd.feat.move.ui.composables.CharacterInfoBox
 import io.github.sophon.fightingnerd.feat.move.ui.composables.FilterBottomSheet
 import io.github.sophon.fightingnerd.feat.move.ui.composables.MoveItem
 import io.github.sophon.fightingnerd.feat.move.ui.composables.MoveTopBar
+import io.github.sophon.fightingnerd.feat.move.ui.composables.SharedMove
+import io.github.sophon.fightingnerd.feat.share.ShareCaptureHost
+import io.github.sophon.fightingnerd.feat.share.ShareSheet
+import io.github.sophon.fightingnerd.infrastructure.toPngBytes
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import io.github.sophon.fightingnerd.theme.nerdDimensions
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -61,26 +66,42 @@ internal fun MoveListScreen(
     )
     val state by vm.state.collectAsStateWithLifecycle()
     val filteredMoves by vm.filteredMoves.collectAsStateWithLifecycle()
+    val pendingShareMoveId by vm.pendingShareMoveId.collectAsStateWithLifecycle()
+    val shareSheet: ShareSheet = koinInject()
 
-    Content(
-        state = state,
-        onExit = onExit,
-        moveList = filteredMoves,
-        onMoveClick = vm::onMoveClick,
-        searchQuery = state.searchQuery,
-        onSearch = vm::onSearchInput,
-        onFilterClick = vm::onDisplayFilter,
-        onClearFilters = vm::onClearFilters,
-        onFilterChipClick = vm::toggleFilter,
-        onChangeSlider = vm::onChangeSlider,
-        onBookmarkSwitch = vm::onBookmarkSwitch,
-        onBookmarkClose = vm::onBookmarkClose,
-        onDownload = vm::onDownloadMedia,
-        onWipe = vm::onWipeMedia,
-        onExpandCharacter = vm::onExpandCharacter,
-        onCollapseCharacter = vm::onCollapseCharacter,
-        modifier = modifier,
-    )
+    Box(modifier = modifier) {
+        Content(
+            state = state,
+            onExit = onExit,
+            moveList = filteredMoves,
+            onMoveClick = vm::onMoveClick,
+            onShareClick = vm::onShare,
+            searchQuery = state.searchQuery,
+            onSearch = vm::onSearchInput,
+            onFilterClick = vm::onDisplayFilter,
+            onClearFilters = vm::onClearFilters,
+            onFilterChipClick = vm::toggleFilter,
+            onChangeSlider = vm::onChangeSlider,
+            onBookmarkSwitch = vm::onBookmarkSwitch,
+            onBookmarkClose = vm::onBookmarkClose,
+            onDownload = vm::onDownloadMedia,
+            onWipe = vm::onWipeMedia,
+            onExpandCharacter = vm::onExpandCharacter,
+            onCollapseCharacter = vm::onCollapseCharacter,
+        )
+
+        pendingShareMoveId?.let { id ->
+            filteredMoves.firstOrNull { it.id == id }?.let { uiMove ->
+                ShareCaptureHost(
+                    content = { SharedMove(uiMove, uiMove.id == state.expandedMoveId) },
+                    onCaptured = { bmp ->
+                        shareSheet.shareImage(bmp.toPngBytes(), "move_${uiMove.id}.png")
+                        vm.onSharedDone()
+                    },
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -89,6 +110,7 @@ private fun Content(
     onExit: () -> Unit,
     moveList: ImmutableList<UiMove>,
     onMoveClick: (moveId: String) -> Unit,
+    onShareClick: (moveId: String) -> Unit,
     searchQuery: String?,
     onSearch: (query: String?) -> Unit,
     onFilterClick: (Boolean) -> Unit,
@@ -146,6 +168,7 @@ private fun Content(
             MoveList(
                 moveList = moveList,
                 onMoveClick = onMoveClick,
+                onShareClick = onShareClick,
                 expandedMoveId = state.expandedMoveId,
                 listState = listState,
             )
@@ -198,6 +221,7 @@ private fun MoveList(
     moveList: ImmutableList<UiMove>,
     expandedMoveId: String?,
     onMoveClick: (moveId: String) -> Unit,
+    onShareClick: (moveId: String) -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier
 ) {
@@ -217,6 +241,7 @@ private fun MoveList(
             MoveItem(
                 uiMove = uiMove,
                 onMoveClick = { onMoveClick(uiMove.id) },
+                onShareClick = onShareClick,
                 isExpanded = (uiMove.id == expandedMoveId)
             )
         }
@@ -262,6 +287,7 @@ private fun MoveListPreview() {
             onExit = {},
             moveList = previewMoves,
             onMoveClick = {},
+            onShareClick = {},
             searchQuery = null,
             onFilterClick = {},
             onFilterChipClick = {},
@@ -287,6 +313,7 @@ private fun MoveListSearchPreview() {
             onExit = {},
             moveList = previewMoves,
             onMoveClick = {},
+            onShareClick = {},
             searchQuery = "",
             onFilterClick = {},
             onFilterChipClick = {},
@@ -317,6 +344,7 @@ private fun MoveListDownloadPreview() {
             onExit = {},
             moveList = previewMoves,
             onMoveClick = {},
+            onShareClick = {},
             searchQuery = null,
             onFilterClick = {},
             onFilterChipClick = {},
