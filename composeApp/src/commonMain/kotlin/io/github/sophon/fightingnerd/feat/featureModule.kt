@@ -1,5 +1,7 @@
 package io.github.sophon.fightingnerd.feat
 
+import io.github.sophon.fightingnerd.BuildKonfig
+import io.github.sophon.fightingnerd.core.model.AppVersion
 import io.github.sophon.fightingnerd.core.usecase.RefreshUseCase
 import io.github.sophon.fightingnerd.feat.changelog.ChangelogClient
 import io.github.sophon.fightingnerd.feat.changelog.ChangelogClientImpl
@@ -123,6 +125,7 @@ internal fun featureModule() = module {
     //endregion
 
     //region Changelog
+    single { AppVersion(BuildKonfig.VERSION) }
     singleOf(::ChangelogRemoteSourceImpl).bind<ChangelogRemoteSource>()
     singleOf(::SaveReleaseAsSeenUseCase)
     singleOf(::GetUnseenReleaseUseCase)

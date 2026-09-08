@@ -1,7 +1,7 @@
 package io.github.sophon.fightingnerd.feat.changelog.usecase
 
-import io.github.sophon.fightingnerd.BuildKonfig
 import io.github.sophon.fightingnerd.core.data.ReleaseRepo
+import io.github.sophon.fightingnerd.core.model.AppVersion
 import io.github.sophon.fightingnerd.feat.changelog.model.Release
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.filterNotNull
 
 internal class GetUnseenReleaseUseCase(
     private val releaseRepo: ReleaseRepo,
-    private val currentVersion: String = BuildKonfig.VERSION,
+    private val currentVersion: AppVersion,
 ) {
     operator fun invoke(): Flow<Release> {
         return combine(
@@ -19,7 +19,7 @@ internal class GetUnseenReleaseUseCase(
             val filteredReleaseList = releaseList.releasedOnly()
 
             val newestUnseenRelease = when {
-                (lastSeenVersion == null) -> filteredReleaseList.firstOrNull { it.version == currentVersion }
+                (lastSeenVersion == null) -> filteredReleaseList.firstOrNull { it.version == currentVersion.value }
                 lastSeenVersion.isNewest(filteredReleaseList) -> null
                 else -> filteredReleaseList.firstOrNull()
             }
