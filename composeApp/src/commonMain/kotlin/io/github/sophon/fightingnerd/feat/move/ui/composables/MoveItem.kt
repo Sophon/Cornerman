@@ -187,41 +187,53 @@ private fun Header(
 }
 
 @Composable
-private fun FieldColumn(
-    field: UiMove.Field,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = field.value ?: "-",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.defaultMinSize(minHeight = 24.dp),
-        )
-        Text(
-            text = stringResource(field.label).uppercase(),
-            style = nerdTypography.labelMedium,
-            color = nerdColorPalette.textSecondary,
-        )
-    }
-}
-
-@Composable
-private fun Properties(
-    propertySet: ImmutableSet<Property>,
+private fun Details(
+    uiMove: UiMove,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(nerdDimensions.componentGapTight),
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
         modifier = modifier,
     ) {
-        propertySet.forEach { property ->
-            Image(
-                painter = painterResource(property.icon()),
-                contentDescription = property.name,
-                modifier = Modifier.size(nerdDimensions.iconDefault),
-            )
+        uiMove.urls.videoUrl?.let { videoUrl ->
+            VideoPlayer(videoUrl)
+            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
+        }
+
+        when {
+            uiMove.urls.hitboxImageList.isNotEmpty() -> {
+                ImageCarousel(
+                    imageList = uiMove.urls.hitboxImageList,
+                )
+
+                Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
+            }
+            uiMove.urls.moveImageList.isNotEmpty() -> {
+                MoveImage(uiMove.urls.moveImageList.first())
+                Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
+            }
+        }
+
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(nerdDimensions.inlineGapTight),
+            maxItemsInEachRow = COUNT_MAX_PER_ROW,
+            verticalArrangement = Arrangement.spacedBy(nerdDimensions.componentPaddingTight),
+        ) {
+            uiMove.optionalFields.forEach { field ->
+                FieldColumn(
+                    field = field,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+        if (uiMove.optionalFields.isNotEmpty()) {
+            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
+        }
+
+        uiMove.notes.takeIf { it.isNotEmpty() }?.let { noteList ->
+            NotesSection(noteList)
+            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
         }
     }
 }
@@ -280,97 +292,6 @@ private fun ExpansionIndicator(
                 .size(nerdDimensions.iconInline)
                 .graphicsLayer { scaleY = chevronFlip }
         )
-    }
-}
-
-@Composable
-private fun Details(
-    uiMove: UiMove,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-    ) {
-        uiMove.urls.videoUrl?.let { videoUrl ->
-            VideoPlayer(videoUrl)
-            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-        }
-
-        when {
-            uiMove.urls.hitboxImageList.isNotEmpty() -> {
-                ImageCarousel(
-                    imageList = uiMove.urls.hitboxImageList,
-                )
-
-                Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-            }
-            uiMove.urls.moveImageList.isNotEmpty() -> {
-                MoveImage(uiMove.urls.moveImageList.first())
-                Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-            }
-        }
-
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(nerdDimensions.inlineGapTight),
-            maxItemsInEachRow = COUNT_MAX_PER_ROW,
-            verticalArrangement = Arrangement.spacedBy(nerdDimensions.componentPaddingTight),
-        ) {
-            uiMove.optionalFields.forEach { field ->
-                FieldColumn(
-                    field = field,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-        if (uiMove.optionalFields.isNotEmpty()) {
-            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-        }
-
-        uiMove.notes.takeIf { it.isNotEmpty() }?.let { noteList ->
-            NotesSection(noteList)
-            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-        }
-    }
-}
-
-@Composable
-private fun MoveImage(
-    imageUrl: String,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier.fillMaxWidth()
-    ) {
-        SubcomposeAsyncImage(
-            model = imageUrl,
-            contentDescription = null,
-            loading = { CircularLoader() },
-            modifier = modifier,
-        )
-    }
-}
-
-@Composable
-private fun NotesSection(
-    noteList: ImmutableList<String>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        horizontalAlignment = Alignment.Start,
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        noteList.forEach { note ->
-            Text(
-                text = "· $note",
-                style = nerdTypography.bodyMedium,
-                color = nerdColorPalette.textPrimary,
-                textAlign = TextAlign.Start
-            )
-        }
     }
 }
 
