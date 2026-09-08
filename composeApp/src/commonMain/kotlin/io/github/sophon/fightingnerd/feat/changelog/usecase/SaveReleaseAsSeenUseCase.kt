@@ -9,11 +9,10 @@ import io.github.sophon.fightingnerd.core.model.AppVersion
 
 @ExcludeFromCoverage("plain repo call")
 internal class SaveReleaseAsSeenUseCase(
-    private val currentVersion: AppVersion,
     private val releaseRepo: ReleaseRepo,
 ) {
-    suspend operator fun invoke(): EmptyResult<AppError> {
-        return releaseRepo.saveLastSeenVersion(currentVersion.value)
+    suspend operator fun invoke(version: String): EmptyResult<AppError> {
+        return releaseRepo.saveLastSeenVersion(version)
             .mapError { AppError.IOError("SaveReleaseAsSeenUseCase") }
     }
 }

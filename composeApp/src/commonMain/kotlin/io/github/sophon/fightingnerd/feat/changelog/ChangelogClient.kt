@@ -8,7 +8,7 @@ import io.github.sophon.fightingnerd.feat.changelog.usecase.SaveReleaseAsSeenUse
 import kotlinx.coroutines.flow.Flow
 
 internal interface ChangelogClient {
-    suspend fun saveReleaseAsSeen()
+    suspend fun saveReleaseAsSeen(version: String)
     fun subscribeToUnseenChangelog(): Flow<Release>
 }
 
@@ -17,8 +17,8 @@ internal class ChangelogClientImpl(
     private val saveReleaseAsSeenUseCase: SaveReleaseAsSeenUseCase,
     private val getUnseenReleaseUseCase: GetUnseenReleaseUseCase,
 ): ChangelogClient {
-    override suspend fun saveReleaseAsSeen() {
-        saveReleaseAsSeenUseCase()
+    override suspend fun saveReleaseAsSeen(version: String) {
+        saveReleaseAsSeenUseCase(version)
             .onError {
                 Napier.e(tag = TAG) { it.errorMessage }
             }

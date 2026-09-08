@@ -158,7 +158,7 @@ private fun Content(
                         ChangelogDialog(
                             release = release,
                             onDismiss = {
-                                scope.launch { changelogClient.saveReleaseAsSeen() }
+                                scope.launch { changelogClient.saveReleaseAsSeen(release.version) }
                                 onDismiss()
                             },
                         )
