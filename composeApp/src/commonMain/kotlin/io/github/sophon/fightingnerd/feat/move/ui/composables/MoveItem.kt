@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -44,6 +45,8 @@ import fightingnerd.composeapp.generated.resources.move_list_field_on_block
 import fightingnerd.composeapp.generated.resources.move_list_field_on_hit
 import fightingnerd.composeapp.generated.resources.move_list_field_startup
 import io.github.sophon.fightingnerd.core.ui.components.CircularLoader
+import io.github.sophon.fightingnerd.core.ui.components.IconAction
+import io.github.sophon.fightingnerd.core.ui.components.IconActionButton
 import io.github.sophon.fightingnerd.core.ui.components.ImageCarousel
 import io.github.sophon.fightingnerd.feat.move.model.Property
 import io.github.sophon.fightingnerd.feat.move.ui.UiMove
@@ -67,6 +70,7 @@ private const val COUNT_MAX_PER_ROW = 3
 internal fun MoveItem(
     uiMove: UiMove,
     onMoveClick: () -> Unit,
+    onShareClick: (id: String) -> Unit,
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -90,6 +94,7 @@ internal fun MoveItem(
             input = uiMove.input,
             name = uiMove.name,
             propertySet = uiMove.propertySet,
+            onShare = { onShareClick(uiMove.id) },
         )
 
         FlowRow(
@@ -127,6 +132,7 @@ private fun Header(
     input: String,
     name: String?,
     propertySet: ImmutableSet<Property>,
+    onShare: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -143,20 +149,34 @@ private fun Header(
                 modifier = Modifier.weight(1f),
             )
 
+            IconActionButton(
+                action = IconAction(
+                    icon = Icons.Outlined.Share,
+                    onClick = onShare,
+                ),
+                tint = nerdColorPalette.textSecondary,
+                modifier = Modifier.size(nerdDimensions.iconInline),
+            )
+        }
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            if (name.isNullOrBlank().not()) {
+                Text(
+                    text = name,
+                    style = nerdTypography.labelSmall,
+                    color = nerdColorPalette.textSecondary,
+                )
+            }
             Properties(
                 propertySet = propertySet
             )
         }
-
-        if (name.isNullOrBlank().not()) {
-            Spacer(Modifier.height(nerdDimensions.componentGapTight))
-            Text(
-                text = name,
-                style = nerdTypography.labelSmall,
-                color = nerdColorPalette.textSecondary,
-            )
-            Spacer(Modifier.height(nerdDimensions.componentGapTight))
-        }
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
 
         HorizontalDivider(
             modifier = Modifier
@@ -406,6 +426,7 @@ private fun CollapsedItemPreview() {
         MoveItem(
             uiMove = videoMove,
             onMoveClick = {},
+            onShareClick = {},
             isExpanded = false,
         )
     }
@@ -418,6 +439,7 @@ private fun ExpandedVideoItemPreview() {
         MoveItem(
             uiMove = videoMove,
             onMoveClick = {},
+            onShareClick = {},
             isExpanded = true,
         )
     }
@@ -430,6 +452,7 @@ private fun ExpandedImageItemPreview() {
         MoveItem(
             uiMove = imageMove,
             onMoveClick = {},
+            onShareClick = {},
             isExpanded = true,
         )
     }

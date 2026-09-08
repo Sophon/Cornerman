@@ -67,6 +67,7 @@ internal fun MoveListScreen(
         onExit = onExit,
         moveList = filteredMoves,
         onMoveClick = vm::onMoveClick,
+        onShareClick = vm::onShare,
         searchQuery = state.searchQuery,
         onSearch = vm::onSearchInput,
         onFilterClick = vm::onDisplayFilter,
@@ -89,6 +90,7 @@ private fun Content(
     onExit: () -> Unit,
     moveList: ImmutableList<UiMove>,
     onMoveClick: (moveId: String) -> Unit,
+    onShareClick: (moveId: String) -> Unit,
     searchQuery: String?,
     onSearch: (query: String?) -> Unit,
     onFilterClick: (Boolean) -> Unit,
@@ -146,6 +148,7 @@ private fun Content(
             MoveList(
                 moveList = moveList,
                 onMoveClick = onMoveClick,
+                onShareClick = onShareClick,
                 expandedMoveId = state.expandedMoveId,
                 listState = listState,
             )
@@ -198,6 +201,7 @@ private fun MoveList(
     moveList: ImmutableList<UiMove>,
     expandedMoveId: String?,
     onMoveClick: (moveId: String) -> Unit,
+    onShareClick: (moveId: String) -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier
 ) {
@@ -217,6 +221,7 @@ private fun MoveList(
             MoveItem(
                 uiMove = uiMove,
                 onMoveClick = { onMoveClick(uiMove.id) },
+                onShareClick = onShareClick,
                 isExpanded = (uiMove.id == expandedMoveId)
             )
         }
@@ -262,6 +267,7 @@ private fun MoveListPreview() {
             onExit = {},
             moveList = previewMoves,
             onMoveClick = {},
+            onShareClick = {},
             searchQuery = null,
             onFilterClick = {},
             onFilterChipClick = {},
@@ -287,6 +293,7 @@ private fun MoveListSearchPreview() {
             onExit = {},
             moveList = previewMoves,
             onMoveClick = {},
+            onShareClick = {},
             searchQuery = "",
             onFilterClick = {},
             onFilterChipClick = {},
@@ -317,6 +324,7 @@ private fun MoveListDownloadPreview() {
             onExit = {},
             moveList = previewMoves,
             onMoveClick = {},
+            onShareClick = {},
             searchQuery = null,
             onFilterClick = {},
             onFilterChipClick = {},

@@ -215,6 +215,10 @@ internal class MoveListVM(
         }
     }
 
+    fun onShare(moveId: String) {
+        //TODO
+    }
+
 
     private fun deriveAvailability(
         progress: Int?,
