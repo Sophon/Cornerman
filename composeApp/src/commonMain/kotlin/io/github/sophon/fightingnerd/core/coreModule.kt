@@ -1,8 +1,10 @@
 package io.github.sophon.fightingnerd.core
 
 import io.github.aakira.napier.Napier
+import io.github.sophon.fightingnerd.core.data.ChangelogRepo
 import io.github.sophon.fightingnerd.core.data.MediaRepo
 import io.github.sophon.fightingnerd.core.data.PreferenceRepo
+import io.github.sophon.fightingnerd.core.data.store.ChangelogRepoImpl
 import io.github.sophon.fightingnerd.core.data.store.MediaRepoImpl
 import io.github.sophon.fightingnerd.core.data.store.PreferenceRepoImpl
 import io.github.sophon.fightingnerd.core.ui.OverlayService
@@ -38,6 +40,8 @@ internal fun coreModule() = module {
     }
 
     singleOf(::PreferenceRepoImpl).bind<PreferenceRepo>()
+
+    singleOf(::ChangelogRepoImpl).bind<ChangelogRepo>()
 
     singleOf(::OpenUrlUseCase)
 
