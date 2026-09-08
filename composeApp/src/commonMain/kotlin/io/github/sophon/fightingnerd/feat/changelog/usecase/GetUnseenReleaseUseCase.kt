@@ -16,7 +16,7 @@ internal class GetUnseenReleaseUseCase(
             releaseRepo.getLastSeenVersion(),
             releaseRepo.getReleases(),
         ) { lastSeenVersion, releaseList ->
-            val filteredReleaseList = releaseList.releasedOnly()
+            val filteredReleaseList = releaseList.releasedAppOnly()
 
             val newestUnseenRelease = when {
                 (lastSeenVersion == null) -> filteredReleaseList.firstOrNull { it.version == currentVersion.value }
@@ -27,8 +27,11 @@ internal class GetUnseenReleaseUseCase(
         }.filterNotNull()
     }
 
-    private fun List<Release>.releasedOnly(): List<Release> {
-        return this.filter { it.isPreRelease.not() }
+    private fun List<Release>.releasedAppOnly(): List<Release> {
+        val filtered = this
+            .filter { it.isPreRelease.not() }
+            .filter { it.type == Release.Type.APP }
+        return filtered
     }
 
     private fun String.isNewest(releaseList: List<Release>): Boolean {

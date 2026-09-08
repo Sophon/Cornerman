@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.sophon.fightingnerd.feat.changelog.model.Release
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
+import io.github.sophon.fightingnerd.theme.nerdColorPalette
+import io.github.sophon.fightingnerd.theme.nerdTypography
 import kotlinx.collections.immutable.persistentListOf
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -19,17 +21,31 @@ internal fun ChangelogDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("OK")
-            }
+        title = {
+            Text(
+                text = release.version,
+                style = nerdTypography.headlineSmall,
+                color = nerdColorPalette.textPrimary,
+            )
         },
-        title = { Text(release.version) },
         text = {
             Column {
                 release.changeList.forEach { change ->
-                    Text("• $change")
+                    Text(
+                        text = "• $change",
+                        style = nerdTypography.bodyLarge,
+                        color = nerdColorPalette.textPrimary,
+                    )
                 }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "OK",
+                    style = nerdTypography.labelLarge,
+                    color = nerdColorPalette.accent,
+                )
             }
         },
         modifier = modifier,
@@ -51,6 +67,7 @@ private fun ChangelogDialogPreview() {
                     "improved character search performance",
                     "added Tekken 8 tier list",
                 ),
+                type = Release.Type.APP,
             ),
             onDismiss = {},
         )

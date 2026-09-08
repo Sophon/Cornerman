@@ -5,6 +5,12 @@ import kotlinx.collections.immutable.persistentListOf
 
 internal data class Release(
     val version: String = "",
-    val isPreRelease: Boolean = true,
+    val isPreRelease: Boolean,
+    val type: Type,
     val changeList: ImmutableList<String> = persistentListOf(),
-)
+) {
+    enum class Type {
+        BOT,
+        APP,
+    }
+}
