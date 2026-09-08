@@ -2,8 +2,8 @@ package io.github.sophon.fightingnerd.core
 
 import io.github.aakira.napier.Napier
 import io.github.sophon.fightingnerd.core.data.MediaRepo
-import io.github.sophon.fightingnerd.core.data.MediaRepoImpl
 import io.github.sophon.fightingnerd.core.data.PreferenceRepo
+import io.github.sophon.fightingnerd.core.data.store.MediaRepoImpl
 import io.github.sophon.fightingnerd.core.data.store.PreferenceRepoImpl
 import io.github.sophon.fightingnerd.core.ui.OverlayService
 import io.github.sophon.fightingnerd.core.usecase.OpenUrlUseCase

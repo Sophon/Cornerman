@@ -62,7 +62,6 @@ import io.github.sophon.fightingnerd.navigation.domain.Destination
 import io.github.sophon.fightingnerd.navigation.domain.rootDestinationSet
 import io.github.sophon.fightingnerd.navigation.domain.rootDestinations
 import io.github.sophon.fightingnerd.navigation.ui.BottomNavBarView
-import io.github.sophon.fightingnerd.navigation.ui.PlaceholderScreen
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
@@ -158,6 +157,8 @@ private fun Content(
                 overlayService = overlayService,
                 snackbarHostState = snackbarHostState,
             )
+
+            //changelog dialog
         }
     }
 }
