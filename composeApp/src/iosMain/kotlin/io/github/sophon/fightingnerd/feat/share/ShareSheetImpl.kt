@@ -5,31 +5,28 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.withContext
 import platform.Foundation.NSData
-import platform.Foundation.NSTemporaryDirectory
-import platform.Foundation.NSURL
 import platform.Foundation.dataWithBytes
-import platform.Foundation.writeToFile
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
+import platform.UIKit.UIImage
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 internal class ShareSheetImpl : ShareSheet {
 
     override suspend fun shareImage(pngBytes: ByteArray, fileName: String) {
-        val fileUrl = withContext(Dispatchers.IO) {
-            val path = NSTemporaryDirectory() + fileName
+        val image = withContext(Dispatchers.IO) {
             val nsData = pngBytes.usePinned { pinned ->
                 NSData.dataWithBytes(pinned.addressOf(0), pngBytes.size.toULong())
             }
-            nsData.writeToFile(path, atomically = true)
-            val url = NSURL.fileURLWithPath(path)
-            url
+            val uiImage = UIImage(data = nsData)
+            uiImage
         }
 
         val activityVc = UIActivityViewController(
-            activityItems = listOf(fileUrl),
+            activityItems = listOf(image),
             applicationActivities = null,
         )
         UIApplication.sharedApplication.keyWindow
