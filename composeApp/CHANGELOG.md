@@ -1,6 +1,6 @@
 # APP CHANGELOG
 
-## [v4.1.0] - TODO
+## [v4.0.1] - TODO
 - fixed updater on iOS
 
 ## [v4.0.0] - 2026-09-08
