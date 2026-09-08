@@ -22,16 +22,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatform
-import platform.BackgroundTasks.BGProcessingTaskRequest
+import platform.BackgroundTasks.BGAppRefreshTaskRequest
 import platform.BackgroundTasks.BGTask
 import platform.BackgroundTasks.BGTaskScheduler as PlatformScheduler
 import platform.Foundation.NSDate
 import platform.Foundation.NSError
 import platform.Foundation.dateWithTimeIntervalSinceNow
 import kotlin.time.Duration
-
-private const val TAG = "Scheduler"
-internal const val TASK_IDENTIFIER = "io.github.sophon.fightingnerd.refresh"
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 internal class BGTaskScheduler(
@@ -98,15 +95,16 @@ private fun handleBGTask(task: BGTask) {
                         success = false
                     }
             }
+        } catch (e: Exception) {
+            Napier.e(tag = TAG, throwable = e) { "bgTask crashed" }
+            success = false
+        } finally {
             val interval = preferenceRepo.subscribeToUpdateInterval().first()
             if (interval != null) {
                 submitBGRequest(interval)
             }
-        } catch (e: Exception) {
-            Napier.e(tag = TAG, throwable = e) { "bgTask crashed" }
-            success = false
+            task.setTaskCompletedWithSuccess(success)
         }
-        task.setTaskCompletedWithSuccess(success)
     }
 
     task.expirationHandler = {
@@ -117,7 +115,7 @@ private fun handleBGTask(task: BGTask) {
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun submitBGRequest(duration: Duration): String? {
-    val request = BGProcessingTaskRequest(identifier = TASK_IDENTIFIER)
+    val request = BGAppRefreshTaskRequest(identifier = TASK_IDENTIFIER)
     request.earliestBeginDate = NSDate.dateWithTimeIntervalSinceNow(
         duration.inWholeSeconds.toDouble()
     )
@@ -132,3 +130,7 @@ private fun submitBGRequest(duration: Duration): String? {
     }
     return error
 }
+
+
+private const val TAG = "Scheduler"
+internal const val TASK_IDENTIFIER = "io.github.sophon.fightingnerd.refresh"
