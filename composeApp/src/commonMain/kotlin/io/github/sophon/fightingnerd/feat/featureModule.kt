@@ -1,6 +1,14 @@
 package io.github.sophon.fightingnerd.feat
 
+import io.github.sophon.fightingnerd.BuildKonfig
+import io.github.sophon.fightingnerd.core.model.AppVersion
 import io.github.sophon.fightingnerd.core.usecase.RefreshUseCase
+import io.github.sophon.fightingnerd.feat.changelog.ChangelogClient
+import io.github.sophon.fightingnerd.feat.changelog.ChangelogClientImpl
+import io.github.sophon.fightingnerd.feat.changelog.data.ChangelogRemoteSource
+import io.github.sophon.fightingnerd.feat.changelog.data.ChangelogRemoteSourceImpl
+import io.github.sophon.fightingnerd.feat.changelog.usecase.GetUnseenReleaseUseCase
+import io.github.sophon.fightingnerd.feat.changelog.usecase.SaveReleaseAsSeenUseCase
 import io.github.sophon.fightingnerd.feat.home.ui.HomeVM
 import io.github.sophon.fightingnerd.feat.home.usecase.CheckCharacterHasMovesUseCase
 import io.github.sophon.fightingnerd.feat.home.usecase.CheckIfFirstLaunchUseCase
@@ -36,6 +44,7 @@ import io.github.sophon.fightingnerd.feat.quiz.usecase.SubscribeGameWidgetsUseCa
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 internal fun featureModule() = module {
@@ -113,5 +122,13 @@ internal fun featureModule() = module {
     singleOf(::GetTipOptionsUseCase)
     singleOf(::PurchaseTipUseCase)
     viewModelOf(::TipVM)
+    //endregion
+
+    //region Changelog
+    single { AppVersion(BuildKonfig.VERSION) }
+    singleOf(::ChangelogRemoteSourceImpl).bind<ChangelogRemoteSource>()
+    singleOf(::SaveReleaseAsSeenUseCase)
+    singleOf(::GetUnseenReleaseUseCase)
+    singleOf(::ChangelogClientImpl).bind<ChangelogClient>()
     //endregion
 }

@@ -1,7 +1,8 @@
 # APP CHANGELOG
 
 ## [v4.1.0] - TODO
-- allows sharing a move as an image
+- `Move` - can share a moves as images
+- `Changelog` - display changelog if release hasn't been seen
 
 ## [v4.0.1] - TODO
 - fixed updater on iOS
