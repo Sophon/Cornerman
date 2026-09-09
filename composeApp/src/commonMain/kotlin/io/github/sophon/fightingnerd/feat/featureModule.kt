@@ -119,6 +119,7 @@ internal fun featureModule() = module {
             onExit = onExit,
             overlayService = get(),
             generateQuestionsUseCase = get(),
+            requestReviewUseCase = get(),
         )
     }
 

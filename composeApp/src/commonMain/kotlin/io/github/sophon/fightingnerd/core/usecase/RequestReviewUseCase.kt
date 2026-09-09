@@ -45,14 +45,29 @@ internal class RequestReviewUseCase(
             age >= DURATION_INSTALLATION
         } ?: false
 
-        val shouldTrigger = isSessionLongEnough && isInstallationOldEnough
+        val otherRequirementsMet = sessionContext.otherRequirementsMet()
+
+        val shouldTrigger = isSessionLongEnough && isInstallationOldEnough && otherRequirementsMet
         if (shouldTrigger.not()) {
             Napier.d(tag = TAG) {
-                "Review: skipped (${sessionContext::class.simpleName}) — session=$isSessionLongEnough, install=$isInstallationOldEnough"
+                "Review: skipped (${sessionContext::class.simpleName}) - " +
+                        "session=$isSessionLongEnough, " +
+                        "install=$isInstallationOldEnough " +
+                        "other=$otherRequirementsMet"
             }
         }
 
         return shouldTrigger
+    }
+
+    private fun SessionContext.otherRequirementsMet(): Boolean {
+        val isMet = when (this) {
+            is SessionContext.Quiz -> {
+                this.correctAnswerPct >= PCT_CORRECT_ANSWERS
+            }
+            else -> true
+        }
+        return isMet
     }
 
 
@@ -60,5 +75,6 @@ internal class RequestReviewUseCase(
         const val TAG = "RequestReviewUseCase"
         val DURATION_SESSION = 10.seconds
         val DURATION_INSTALLATION = 7.days
+        const val PCT_CORRECT_ANSWERS = 80
     }
 }

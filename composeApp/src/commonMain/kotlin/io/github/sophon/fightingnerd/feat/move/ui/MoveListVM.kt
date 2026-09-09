@@ -24,7 +24,7 @@ import io.github.sophon.fightingnerd.feat.move.usecase.SubscribeToMoveListUseCas
 import io.github.sophon.fightingnerd.feat.move.usecase.SubscribeToOfflineMediaAvailability
 import io.github.sophon.fightingnerd.feat.move.usecase.WipeMediaUseCase
 import io.github.sophon.fightingnerd.feat.review.SessionContext
-import io.github.sophon.fightingnerd.feat.review.usecase.RequestReviewUseCase
+import io.github.sophon.fightingnerd.core.usecase.RequestReviewUseCase
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
