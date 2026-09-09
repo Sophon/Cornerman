@@ -21,6 +21,8 @@ import io.github.sophon.fightingnerd.infrastructure.createDataStore
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.createdAtStart
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
@@ -32,7 +34,10 @@ internal actual val platformModule = module {
     singleOf(::UrlOpenerAnd).bind<UrlOpener>()
     singleOf(::WorkManagerScheduler).bind<Scheduler>()
     singleOf(::ShareSheetImpl).bind<ShareSheet>()
-    singleOf(::ReviewHandlerImpl).bind<ReviewHandler>()
+    singleOf(::ReviewHandlerImpl) {
+        createdAtStart()
+        bind<ReviewHandler>()
+    }
 
     single<Path> { androidContext().filesDir.toOkioPath() / "media" }
 

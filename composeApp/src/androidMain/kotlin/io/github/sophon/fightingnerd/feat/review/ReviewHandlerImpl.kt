@@ -10,6 +10,8 @@ import io.github.sophon.core.architecture.EmptyResult
 import io.github.sophon.core.architecture.Result
 import io.github.sophon.fightingnerd.core.model.AppError
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicReference
 
 internal class ReviewHandlerImpl(
@@ -45,12 +47,13 @@ internal class ReviewHandlerImpl(
     override suspend fun requestReview(): EmptyResult<AppError> {
         val activity = currentActivity.get()
             ?: return Result.Error(AppError.ReviewError("no active activity"))
-        val manager = ReviewManagerFactory.create(app) //PROD VARIANT
-//         val manager = com.google.android.play.core.review.testing.FakeReviewManager(app) // DEBUG VARIANT
 
         val result = try {
-            val info = manager.requestReview()
-            manager.launchReview(activity, info)
+            withContext(Dispatchers.Main) {
+                val manager = ReviewManagerFactory.create(app)
+                val info = manager.requestReview()
+                manager.launchReview(activity, info)
+            }
             Result.Success(Unit)
         } catch (e: CancellationException) {
             throw e
