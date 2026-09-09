@@ -34,10 +34,6 @@ internal class RequestReviewUseCase(
     }
 
     private suspend fun shouldTrigger(sessionContext: SessionContext): Boolean {
-        /**
-         * 1. installation is at least one week old
-         * 2. session at least 10s long
-         */
         val isSessionLongEnough = (sessionContext.duration >= DURATION_SESSION)
 
         val isInstallationOldEnough = reviewPolicyRepo.getInstallationTimestamp().first()?.let { instant ->
@@ -51,9 +47,9 @@ internal class RequestReviewUseCase(
         if (shouldTrigger.not()) {
             Napier.d(tag = TAG) {
                 "Review: skipped (${sessionContext::class.simpleName}) - " +
-                        "session=$isSessionLongEnough, " +
-                        "install=$isInstallationOldEnough " +
-                        "other=$otherRequirementsMet"
+                        "session duration = ${isSessionLongEnough}, " +
+                        "install age = ${isInstallationOldEnough}, " +
+                        "other = ${otherRequirementsMet} "
             }
         }
 
