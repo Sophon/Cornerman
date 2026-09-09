@@ -42,7 +42,7 @@ import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.QuizVM
 import io.github.sophon.fightingnerd.feat.quiz.usecase.GenerateQuestionsUseCase
 import io.github.sophon.fightingnerd.feat.quiz.usecase.SubscribeGameWidgetsUseCase
 import io.github.sophon.fightingnerd.core.usecase.RecordInstallationUseCase
-import io.github.sophon.fightingnerd.feat.review.usecase.RequestReviewUseCase
+import io.github.sophon.fightingnerd.core.usecase.RequestReviewUseCase
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf

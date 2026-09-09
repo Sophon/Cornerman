@@ -1,4 +1,4 @@
-package io.github.sophon.fightingnerd.feat.review
+package io.github.sophon.fightingnerd.feat.review.platform
 
 import android.app.Activity
 import android.app.Application

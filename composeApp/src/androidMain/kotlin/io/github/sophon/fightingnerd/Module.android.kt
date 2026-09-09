@@ -11,8 +11,8 @@ import io.github.sophon.core.wiki.data.readStoredFingerprint
 import io.github.sophon.core.wiki.data.storeFingerprint
 import io.github.sophon.fightingnerd.core.domain.UrlOpener
 import io.github.sophon.fightingnerd.core.domain.UrlOpenerAnd
-import io.github.sophon.fightingnerd.feat.review.ReviewHandler
-import io.github.sophon.fightingnerd.feat.review.ReviewHandlerImpl
+import io.github.sophon.fightingnerd.feat.review.platform.ReviewHandler
+import io.github.sophon.fightingnerd.feat.review.platform.ReviewHandlerImpl
 import io.github.sophon.fightingnerd.feat.scheduler.Scheduler
 import io.github.sophon.fightingnerd.feat.scheduler.WorkManagerScheduler
 import io.github.sophon.fightingnerd.feat.share.ShareSheet

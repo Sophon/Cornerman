@@ -1,10 +1,10 @@
-package io.github.sophon.fightingnerd.feat.review.usecase
+package io.github.sophon.fightingnerd.core.usecase
 
 import io.github.aakira.napier.Napier
 import io.github.sophon.core.architecture.onError
 import io.github.sophon.core.architecture.onSuccess
 import io.github.sophon.fightingnerd.core.data.ReviewPolicyRepo
-import io.github.sophon.fightingnerd.feat.review.ReviewHandler
+import io.github.sophon.fightingnerd.feat.review.platform.ReviewHandler
 import io.github.sophon.fightingnerd.feat.review.SessionContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
