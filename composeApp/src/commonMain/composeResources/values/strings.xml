@@ -115,7 +115,7 @@
 Because of those factors, the project was highly modular from the very beginning. Kotlin was chosen because that's what I use in my job.
 All of this meant that a mobile client was the logical and natural evolution.</string>
     <string name="more_about_name_title">Why Fighting Nerd</string>
-    <string name="more_about_name_body">Inspired by the Brazilian MMA gym. Their philosophy is that fighting is a problem that needs to be solved and that one should fight smarter, not tougher.
+    <string name="more_about_name_body">The name was inspired by the Brazilian MMA gym, Fighting Nerds. Their philosophy is that fighting is a problem that needs to be solved and that one should fight smarter, not tougher.
 Since the project targets all fighting games and focuses on frame data, which is nerdy, the name is a perfect fit.
 The logo is a boxing glove with nerd glasses. Get it?</string>
     <string name="more_about_next_title">What next</string>
