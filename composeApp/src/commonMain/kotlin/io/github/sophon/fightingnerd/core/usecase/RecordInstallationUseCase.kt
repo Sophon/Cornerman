@@ -8,7 +8,7 @@ internal class RecordInstallationUseCase(
     private val repo: ReviewPolicyRepo,
 ) {
     suspend operator fun invoke() {
-        repo.getInstallationTimestamp().first() ?: return
+        if (repo.getInstallationTimestamp().first() != null) return
 
         val now = Clock.System.now()
         repo.saveInstallationTimestamp(now)
