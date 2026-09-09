@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,26 +19,27 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fightingnerd.composeapp.generated.resources.Res
-import fightingnerd.composeapp.generated.resources.ic_discord
 import fightingnerd.composeapp.generated.resources.ic_fighting_nerd
 import fightingnerd.composeapp.generated.resources.more_about_about_body
 import fightingnerd.composeapp.generated.resources.more_about_about_title
-import fightingnerd.composeapp.generated.resources.more_about_invite_discord_label
-import fightingnerd.composeapp.generated.resources.more_about_invite_discord_title
+import fightingnerd.composeapp.generated.resources.more_about_invite_links_title
 import fightingnerd.composeapp.generated.resources.more_about_name_body
 import fightingnerd.composeapp.generated.resources.more_about_name_title
 import fightingnerd.composeapp.generated.resources.more_about_next_body
 import fightingnerd.composeapp.generated.resources.more_about_next_title
 import io.github.sophon.fightingnerd.core.ui.components.TopBarButton
-import io.github.sophon.fightingnerd.feat.more.URL_DISCORD_INVITE
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import io.github.sophon.fightingnerd.theme.nerdColorPalette
 import io.github.sophon.fightingnerd.theme.nerdDimensions
 import io.github.sophon.fightingnerd.theme.nerdTypography
+import kotlinx.collections.immutable.ImmutableList
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -49,22 +51,25 @@ internal fun AboutScreen(
     modifier: Modifier = Modifier,
 ) {
     val vm = koinViewModel<AboutVM>()
+    val state by vm.state.collectAsStateWithLifecycle()
     val onExitWithReview: () -> Unit = {
         vm.onScreenExit()
         onExit()
     }
 
     Content(
+        state = state,
         onExit = onExitWithReview,
-        onDiscordClick = vm::openUrl,
+        onLinkClick = vm::openUrl,
         modifier = modifier,
     )
 }
 
 @Composable
 private fun Content(
+    state: AboutState,
     onExit: () -> Unit,
-    onDiscordClick: (url: String) -> Unit,
+    onLinkClick: (url: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -98,7 +103,7 @@ private fun Content(
         )
         Spacer(Modifier.height(nerdDimensions.componentGap))
 
-        DiscordInvite(onClick = onDiscordClick)
+        LinksSection(links = state.links, onLinkClick = onLinkClick)
         Spacer(Modifier.height(nerdDimensions.componentGap))
     }
 }
@@ -153,39 +158,71 @@ private fun Section(
 }
 
 @Composable
-private fun DiscordInvite(
-    onClick: (url: String) -> Unit,
+private fun LinksSection(
+    links: ImmutableList<AboutState.Link>,
+    onLinkClick: (url: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
-            text = stringResource(Res.string.more_about_invite_discord_title).uppercase(),
+            text = stringResource(Res.string.more_about_invite_links_title).uppercase(),
             style = nerdTypography.headlineSmall,
             color = nerdColorPalette.textPrimary,
         )
         Spacer(Modifier.height(nerdDimensions.componentGapTight))
 
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(
+                space = nerdDimensions.componentGap,
+                alignment = Alignment.CenterHorizontally,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            links.forEach { link ->
+                LinkBox(
+                    icon = link.icon,
+                    label = stringResource(link.label),
+                    onClick = { onLinkClick(link.url) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LinkBox(
+    icon: DrawableResource,
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier,
+    ) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .clip(CircleShape)
                 .background(nerdColorPalette.surfaceHigh)
-                .clickable(onClick = { onClick(URL_DISCORD_INVITE) })
+                .clickable(onClick = onClick)
                 .padding(nerdDimensions.componentPadding),
         ) {
             Icon(
-                painter = painterResource(Res.drawable.ic_discord),
+                painter = painterResource(icon),
                 contentDescription = null,
-                tint = nerdColorPalette.accent,
+                tint = nerdColorPalette.textPrimary,
                 modifier = Modifier.size(nerdDimensions.iconLarge),
             )
         }
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
 
         Text(
-            text = stringResource(Res.string.more_about_invite_discord_label),
+            text = label,
             style = nerdTypography.labelLarge,
             color = nerdColorPalette.textSecondary,
         )
@@ -199,8 +236,9 @@ private fun DiscordInvite(
 private fun Preview() {
     FightingNerdTheme {
         Content(
+            state = AboutState(),
             onExit = {},
-            onDiscordClick = {},
+            onLinkClick = {},
         )
     }
 }
