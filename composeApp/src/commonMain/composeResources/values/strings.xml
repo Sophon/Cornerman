@@ -120,7 +120,8 @@ Since the project targets all fighting games and focuses on frame data, which is
 The logo is a boxing glove with nerd glasses. Get it?</string>
     <string name="more_about_next_title">What next</string>
     <string name="more_about_next_body">The core platform is done. From here on, focus will be on adding games.</string>
-    <string name="more_about_invite_discord">Discord bot</string>
+    <string name="more_about_invite_discord_title">Discord bot</string>
+    <string name="more_about_invite_discord_label">Discord bot</string>
 
     <string name="payment_tip_dialog_title">Thanks!</string>
     <string name="payment_tip_dialog_description">Your support is not required but highly appreciated.</string>

@@ -62,7 +62,6 @@ import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesScreen
 import io.github.sophon.fightingnerd.feat.move.ui.MoveListScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.overview.QuizOverviewScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.QuizScreen
-import io.github.sophon.fightingnerd.core.domain.UrlOpener
 import io.github.sophon.fightingnerd.core.usecase.RecordInstallationUseCase
 import io.github.sophon.fightingnerd.feat.more.ui.about.AboutScreen
 import io.github.sophon.fightingnerd.navigation.domain.Destination
@@ -287,11 +286,7 @@ private fun AppNavDisplay(
                 UpdatesScreen(onExit = { backStack.removeLastOrNull() })
             }
             entry<Destination.About> {
-                val urlOpener = koinInject<UrlOpener>()
-                AboutScreen(
-                    onExit = { backStack.removeLastOrNull() },
-                    onDiscordClick = { urlOpener.openUrl(it) },
-                )
+                AboutScreen(onExit = { backStack.removeLastOrNull() })
             }
         }
     )

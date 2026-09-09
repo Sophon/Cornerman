@@ -7,6 +7,8 @@ internal sealed interface SessionContext {
 
     data class MoveList(override val duration: Duration = Duration.ZERO) : SessionContext
 
+    data class About(override val duration: Duration = Duration.ZERO) : SessionContext
+
     data class Quiz(
         override val duration: Duration = Duration.ZERO,
         val correctAnswerPct: Int,

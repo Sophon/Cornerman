@@ -17,6 +17,7 @@ import io.github.sophon.fightingnerd.feat.home.usecase.SubscribeToGamesUseCase
 import io.github.sophon.fightingnerd.feat.module.domain.WikiClientFactory
 import io.github.sophon.fightingnerd.feat.module.usecase.LoadConfigUseCase
 import io.github.sophon.fightingnerd.feat.more.ui.MoreVM
+import io.github.sophon.fightingnerd.feat.more.ui.about.AboutVM
 import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsVM
 import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesVM
 import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
@@ -76,6 +77,7 @@ internal fun featureModule() = module {
 
     viewModelOf(::FeatureSettingsVM)
     viewModelOf(::UpdatesVM)
+    viewModelOf(::AboutVM)
     //endregion
 
     //region Move

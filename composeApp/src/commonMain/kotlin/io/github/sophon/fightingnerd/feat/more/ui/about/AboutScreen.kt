@@ -26,7 +26,8 @@ import fightingnerd.composeapp.generated.resources.ic_discord
 import fightingnerd.composeapp.generated.resources.ic_fighting_nerd
 import fightingnerd.composeapp.generated.resources.more_about_about_body
 import fightingnerd.composeapp.generated.resources.more_about_about_title
-import fightingnerd.composeapp.generated.resources.more_about_invite_discord
+import fightingnerd.composeapp.generated.resources.more_about_invite_discord_label
+import fightingnerd.composeapp.generated.resources.more_about_invite_discord_title
 import fightingnerd.composeapp.generated.resources.more_about_name_body
 import fightingnerd.composeapp.generated.resources.more_about_name_title
 import fightingnerd.composeapp.generated.resources.more_about_next_body
@@ -40,9 +41,28 @@ import io.github.sophon.fightingnerd.theme.nerdTypography
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 internal fun AboutScreen(
+    onExit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val vm = koinViewModel<AboutVM>()
+    val onExitWithReview: () -> Unit = {
+        vm.onScreenExit()
+        onExit()
+    }
+
+    Content(
+        onExit = onExitWithReview,
+        onDiscordClick = vm::openUrl,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun Content(
     onExit: () -> Unit,
     onDiscordClick: (url: String) -> Unit,
     modifier: Modifier = Modifier,
@@ -142,7 +162,7 @@ private fun DiscordInvite(
         modifier = modifier.fillMaxWidth(),
     ) {
         Text(
-            text = stringResource(Res.string.more_about_invite_discord).uppercase(),
+            text = stringResource(Res.string.more_about_invite_discord_title).uppercase(),
             style = nerdTypography.headlineSmall,
             color = nerdColorPalette.textPrimary,
         )
@@ -165,7 +185,7 @@ private fun DiscordInvite(
         }
 
         Text(
-            text = "Add to server",
+            text = stringResource(Res.string.more_about_invite_discord_label),
             style = nerdTypography.labelLarge,
             color = nerdColorPalette.textSecondary,
         )
@@ -178,7 +198,7 @@ private fun DiscordInvite(
 @Preview()
 private fun Preview() {
     FightingNerdTheme {
-        AboutScreen(
+        Content(
             onExit = {},
             onDiscordClick = {},
         )
