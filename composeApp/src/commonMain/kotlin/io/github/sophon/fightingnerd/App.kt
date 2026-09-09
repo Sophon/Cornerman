@@ -62,7 +62,9 @@ import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesScreen
 import io.github.sophon.fightingnerd.feat.move.ui.MoveListScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.overview.QuizOverviewScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.QuizScreen
+import io.github.sophon.fightingnerd.core.domain.UrlOpener
 import io.github.sophon.fightingnerd.core.usecase.RecordInstallationUseCase
+import io.github.sophon.fightingnerd.feat.more.ui.about.AboutScreen
 import io.github.sophon.fightingnerd.navigation.domain.Destination
 import io.github.sophon.fightingnerd.navigation.domain.rootDestinationSet
 import io.github.sophon.fightingnerd.navigation.domain.rootDestinations
@@ -86,6 +88,7 @@ private val navConfig = SavedStateConfiguration {
             subclass(Destination.CharacterDetail::class, Destination.CharacterDetail.serializer())
             subclass(Destination.FeatureSettings::class, Destination.FeatureSettings.serializer())
             subclass(Destination.UpdatesSettings::class, Destination.UpdatesSettings.serializer())
+            subclass(Destination.About::class, Destination.About.serializer())
         }
     }
 }
@@ -270,6 +273,7 @@ private fun AppNavDisplay(
                         when (moreItem) {
                             MoreItem.FeatureSettings -> backStack.add(Destination.FeatureSettings)
                             MoreItem.UpdatesSettings -> backStack.add(Destination.UpdatesSettings)
+                            MoreItem.About -> backStack.add(Destination.About)
 //                            MoreItem.Theme -> {/* no navigation */}
                         }
                     }
@@ -281,6 +285,13 @@ private fun AppNavDisplay(
             }
             entry<Destination.UpdatesSettings> {
                 UpdatesScreen(onExit = { backStack.removeLastOrNull() })
+            }
+            entry<Destination.About> {
+                val urlOpener = koinInject<UrlOpener>()
+                AboutScreen(
+                    onExit = { backStack.removeLastOrNull() },
+                    onDiscordClick = { urlOpener.openUrl(it) },
+                )
             }
         }
     )
