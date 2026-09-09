@@ -62,6 +62,7 @@ import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesScreen
 import io.github.sophon.fightingnerd.feat.move.ui.MoveListScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.overview.QuizOverviewScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.QuizScreen
+import io.github.sophon.fightingnerd.core.usecase.RecordInstallationUseCase
 import io.github.sophon.fightingnerd.navigation.domain.Destination
 import io.github.sophon.fightingnerd.navigation.domain.rootDestinationSet
 import io.github.sophon.fightingnerd.navigation.domain.rootDestinations
@@ -107,6 +108,9 @@ private val popDownTransition: ContentTransform = ContentTransform(
 
 @Composable
 internal fun App() {
+    val recordInstallation = koinInject<RecordInstallationUseCase>()
+    LaunchedEffect(Unit) { recordInstallation() }
+
     val isInitialized = rememberFeaturesLoaded()
 
     FightingNerdTheme {
