@@ -8,7 +8,4 @@ import kotlin.time.Instant
 internal interface ReviewPolicyRepo {
     fun getInstallationTimestamp(): Flow<Instant?>
     suspend fun saveInstallationTimestamp(timestamp: Instant): EmptyResult<DataError.Local>
-
-    fun getLastReviewPromptTimestamp(): Flow<Instant?>
-    suspend fun saveReviewPromptTimestamp(timestamp: Instant): EmptyResult<DataError.Local>
 }

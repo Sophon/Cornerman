@@ -33,24 +33,7 @@ internal class ReviewPolicyRepoImpl(
             return Result.Error(DataError.Local.UNKNOWN)
         }
     }
-
-    override fun getLastReviewPromptTimestamp(): Flow<Instant?> {
-        val flow = store.data
-            .catch { emit(emptyPreferences()) }
-            .map { prefs -> prefs[KEY_LAST_REVIEW_PROMPT_TIMESTAMP]?.let(Instant::fromEpochMilliseconds) }
-        return flow
-    }
-
-    override suspend fun saveReviewPromptTimestamp(timestamp: Instant): EmptyResult<DataError.Local> {
-        try {
-            store.edit { prefs -> prefs[KEY_LAST_REVIEW_PROMPT_TIMESTAMP] = timestamp.toEpochMilliseconds() }
-            return Result.Success(Unit)
-        } catch (_: Exception) {
-            return Result.Error(DataError.Local.UNKNOWN)
-        }
-    }
 }
 
 
 private val KEY_INSTALLATION_TIMESTAMP = longPreferencesKey("installation_timestamp")
-private val KEY_LAST_REVIEW_PROMPT_TIMESTAMP = longPreferencesKey("last_review_prompt_timestamp")
