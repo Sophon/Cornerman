@@ -49,7 +49,7 @@ internal class RequestReviewUseCase(
                 "Review: skipped (${sessionContext::class.simpleName}) - " +
                         "session duration = ${isSessionLongEnough}, " +
                         "install age = ${isInstallationOldEnough}, " +
-                        "other = ${otherRequirementsMet} "
+                        "other = $otherRequirementsMet"
             }
         }
 
