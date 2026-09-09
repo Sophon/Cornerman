@@ -68,11 +68,15 @@ internal fun MoveListScreen(
     val filteredMoves by vm.filteredMoves.collectAsStateWithLifecycle()
     val pendingShareMoveId by vm.pendingShareMoveId.collectAsStateWithLifecycle()
     val shareSheet: ShareSheet = koinInject()
+    val onExitWithReview: () -> Unit = {
+        vm.onScreenExit()
+        onExit()
+    }
 
     Box(modifier = modifier) {
         Content(
             state = state,
-            onExit = onExit,
+            onExit = onExitWithReview,
             moveList = filteredMoves,
             onMoveClick = vm::onMoveClick,
             onShareClick = vm::onShare,

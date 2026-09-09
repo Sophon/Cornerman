@@ -41,6 +41,8 @@ import io.github.sophon.fightingnerd.feat.quiz.ui.overview.QuizOverviewVM
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.QuizVM
 import io.github.sophon.fightingnerd.feat.quiz.usecase.GenerateQuestionsUseCase
 import io.github.sophon.fightingnerd.feat.quiz.usecase.SubscribeGameWidgetsUseCase
+import io.github.sophon.fightingnerd.core.usecase.RecordInstallationUseCase
+import io.github.sophon.fightingnerd.core.usecase.RequestReviewUseCase
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -90,6 +92,7 @@ internal fun featureModule() = module {
             downloadMediaUseCase = get(),
             wipeMediaUseCase = get(),
             subscribeToOfflineMediaAvailability = get(),
+            requestReviewUseCase = get(),
         )
     }
     singleOf(::SubscribeToMoveListUseCase)
@@ -102,6 +105,11 @@ internal fun featureModule() = module {
     singleOf(::SubscribeToOfflineMediaAvailability)
     //endregion
 
+    //region Review
+    singleOf(::RequestReviewUseCase)
+    singleOf(::RecordInstallationUseCase)
+    //endregion
+
     //region Quiz
     viewModelOf(::QuizOverviewVM)
     viewModel { (gameId: String, characterId: String, onExit: () -> Unit) ->
@@ -111,6 +119,7 @@ internal fun featureModule() = module {
             onExit = onExit,
             overlayService = get(),
             generateQuestionsUseCase = get(),
+            requestReviewUseCase = get(),
         )
     }
 

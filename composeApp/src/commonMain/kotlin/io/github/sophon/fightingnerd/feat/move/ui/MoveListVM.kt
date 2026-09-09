@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import io.github.sophon.core.architecture.onError
 import io.github.sophon.core.architecture.onSuccess
+import io.github.sophon.fightingnerd.core.util.ScreenStopWatch
 import io.github.sophon.core.util.stripMarkdownLinks
 import io.github.sophon.core.wiki.model.CharacterId
 import io.github.sophon.core.wiki.model.Filter
@@ -22,6 +23,8 @@ import io.github.sophon.fightingnerd.feat.move.usecase.NormalizeSliderUseCase
 import io.github.sophon.fightingnerd.feat.move.usecase.SubscribeToMoveListUseCase
 import io.github.sophon.fightingnerd.feat.move.usecase.SubscribeToOfflineMediaAvailability
 import io.github.sophon.fightingnerd.feat.move.usecase.WipeMediaUseCase
+import io.github.sophon.fightingnerd.feat.review.SessionContext
+import io.github.sophon.fightingnerd.core.usecase.RequestReviewUseCase
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentListOf
@@ -60,6 +63,7 @@ internal class MoveListVM(
     private val groupMovesUseCase: GroupMovesUseCase,
     private val downloadMediaUseCase: DownloadMediaUseCase,
     private val wipeMediaUseCase: WipeMediaUseCase,
+    private val requestReviewUseCase: RequestReviewUseCase,
 ): ViewModel() {
     private val _state = MutableStateFlow(MoveListState())
     private val _fullMoveList = MutableStateFlow(MoveCache.EMPTY)
@@ -67,6 +71,7 @@ internal class MoveListVM(
     private val _pendingShareMoveId = MutableStateFlow<String?>(null)
     val pendingShareMoveId: StateFlow<String?> = _pendingShareMoveId.asStateFlow()
     private var groupList: ImmutableList<Group> = persistentListOf()
+    private val screenStopWatch = ScreenStopWatch()
 
     val state: StateFlow<MoveListState> = combine(
         _state.onStart { subscribeToData() },
@@ -224,6 +229,12 @@ internal class MoveListVM(
 
     fun onSharedDone() {
         _pendingShareMoveId.value = null
+    }
+
+    fun onScreenExit() {
+        val sessionDuration = screenStopWatch.elapsed()
+        val sessionContext = SessionContext.MoveList(duration = sessionDuration)
+        requestReviewUseCase(sessionContext)
     }
 
 
