@@ -50,6 +50,7 @@ import io.github.sophon.discord.feat.core.usecase.GetCharacterUseCase
 import io.github.sophon.discord.feat.core.usecase.GetCharactersUseCase
 import io.github.sophon.discord.feat.core.usecase.GetMoveUseCase
 import io.github.sophon.discord.feat.core.usecase.GetMovesUseCase
+import io.github.sophon.discord.feat.core.usecase.GetMovesWithinRangeUseCase
 import io.github.sophon.discord.feat.core.usecase.SyncWikiDataUseCase
 import io.github.sophon.discord.feat.dreamCancel.DreamCancelWikiDiscordFeature
 import io.github.sophon.discord.feat.ewgf.EwgfDiscordFeature
@@ -136,6 +137,7 @@ internal val featureRegistryModule = module {
     singleOf(::GetCharactersUseCase)
     singleOf(::FetchMoveInWikisUseCase)
     singleOf(::FetchCharacterInWikisUseCase)
+    singleOf(::GetMovesWithinRangeUseCase)
 
     singleOf(::Scheduler)
     //endregion
