@@ -339,6 +339,36 @@ internal class SaveFeatureConfigUseCaseTest {
         assertThat(wavuClient.refreshCalled).isFalse()
     }
 
+    @Test
+    fun `usecase does not wipe cache when saving to the store fails`() = runTest {
+        // given
+        val wavuClient = FakeWikiClient(name = "Wavu Wiki")
+        val repo = FakeFeatureRepo(gameClients = mapOf(Game.Tekken8 to wavuClient))
+        val store = failingStore(featureKey("Wavu Wiki", Game.Tekken8.id) to true)
+        val usecase = SaveFeatureConfigUseCase(store, repo, FakeMediaRepo(), backgroundScope)
+        val featureList = listOf(
+            UiFeatureSetting(
+                featureName = "Wavu Wiki",
+                iconUrl = "",
+                version = "1.0.0",
+                gameList = persistentListOf(
+                    UiFeatureSetting.UiGame(
+                        displayName = Game.Tekken8.displayName,
+                        id = Game.Tekken8.id,
+                        isEnabled = false,
+                    ),
+                ),
+            ),
+        )
+
+        // when
+        val result = usecase.invoke(featureList)
+
+        // then
+        assertThat(result).isInstanceOf(Result.Error::class)
+        assertThat(wavuClient.clearCacheCalled).isFalse()
+    }
+
 
     private fun fakeStore(vararg pairs: Preferences.Pair<*>): DataStore<Preferences> {
         val state = MutableStateFlow(preferencesOf(*pairs))
