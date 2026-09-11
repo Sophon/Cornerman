@@ -14,9 +14,11 @@ import io.github.sophon.fightingnerd.core.data.MediaRepo
 import io.github.sophon.fightingnerd.feat.more.model.SettingsError
 import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsState.UiFeatureSetting
 import io.github.sophon.fightingnerd.feat.more.util.featureKey
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.withContext
 
 /**
@@ -28,25 +30,33 @@ import kotlinx.coroutines.withContext
  *
  * `clearCache` fails - still proceed to mark the feature disabled in prefs.
  *
- * Re-enabling will trigger a fresh download.
+ * Enabling a game (first time or re-enable) triggers a fire-and-forget download
+ * on the app-scope so the work survives if the caller navigates away.
  */
 internal class SaveFeatureConfigUseCase(
     private val store: DataStore<Preferences>,
     private val featureRepo: FeatureRepo,
     private val mediaRepo: MediaRepo,
+    private val scope: CoroutineScope,
 ) {
     suspend fun invoke(
         featureList: List<UiFeatureSetting>,
     ): EmptyResult<SettingsError> {
         return withContext(Dispatchers.IO) {
-            wipeCacheForFeature(featureList)
-            saveToStore(featureList)
+            val prefs = store.data.first()
+            val disabledPairList = diffDisabled(newConfig = featureList, prefs = prefs)
+            val enabledPairList = diffEnabled(newConfig = featureList, prefs = prefs)
+
+            wipeCacheForDisabled(disabledPairList)
+            val saveResult = saveToStore(featureList)
+            if (saveResult is Result.Success) {
+                triggerDownloadForEnabled(enabledPairList)
+            }
+            saveResult
         }
     }
 
-    private suspend fun wipeCacheForFeature(featureList: List<UiFeatureSetting>) {
-        val disabledPairList = diffDisabled(newConfig = featureList)
-
+    private suspend fun wipeCacheForDisabled(disabledPairList: List<Pair<String, String>>) {
         for ((_, gameId) in disabledPairList) {
             val game = Game.fromId(gameId)
             if (game == null) {
@@ -66,15 +76,47 @@ internal class SaveFeatureConfigUseCase(
         }
     }
 
-    private suspend fun diffDisabled(
+    private fun triggerDownloadForEnabled(enabledPairList: List<Pair<String, String>>) {
+        for ((_, gameId) in enabledPairList) {
+            val game = Game.fromId(gameId)
+            if (game == null) {
+                Napier.w(tag = TAG) { "Unknown gameId to enable: $gameId" }
+                continue
+            }
+            val wikiClient = featureRepo.getWikiClientFor(game)
+            if (wikiClient == null) {
+                Napier.w(tag = TAG) { "No WikiClient registered for game: $gameId" }
+                continue
+            }
+            wikiClient.refreshData().launchIn(scope)
+        }
+    }
+
+    private fun diffDisabled(
         newConfig: List<UiFeatureSetting>,
+        prefs: Preferences,
     ): List<Pair<String, String>> {
-        val prefs = store.data.first()
         val result = mutableListOf<Pair<String, String>>()
         newConfig.forEach { feature ->
             feature.gameList.forEach { game ->
                 val wasEnabled = prefs[featureKey(feature.featureName, game.id)] ?: true
                 if (wasEnabled && game.isEnabled.not()) {
+                    result.add(feature.featureName to game.id)
+                }
+            }
+        }
+        return result
+    }
+
+    private fun diffEnabled(
+        newConfig: List<UiFeatureSetting>,
+        prefs: Preferences,
+    ): List<Pair<String, String>> {
+        val result = mutableListOf<Pair<String, String>>()
+        newConfig.forEach { feature ->
+            feature.gameList.forEach { game ->
+                val wasEnabled = prefs[featureKey(feature.featureName, game.id)] ?: false
+                if (wasEnabled.not() && game.isEnabled) {
                     result.add(feature.featureName to game.id)
                 }
             }
