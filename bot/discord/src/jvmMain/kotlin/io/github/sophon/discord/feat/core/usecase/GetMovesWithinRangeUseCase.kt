@@ -10,6 +10,7 @@ import io.github.sophon.core.wiki.model.WikiClient
 import io.github.sophon.core.wiki.util.findMatching
 import io.github.sophon.discord.feat.core.domain.model.BotError
 import io.github.sophon.discord.feat.core.domain.model.Command
+import io.github.sophon.discord.feat.core.domain.model.MoveRange
 import kotlinx.coroutines.flow.first
 
 internal class GetMovesWithinRangeUseCase {
@@ -17,14 +18,16 @@ internal class GetMovesWithinRangeUseCase {
         wiki: WikiClient,
         command: Command,
         query: String,
-    ): Result<Pair<Character, List<Move>>, BotError> {
+    ): Result<MoveRange, BotError> {
         val rangeQuery = query.substringAfter(" ", missingDelimiterValue = "")
         val (from, to) = rangeQuery.parseIntoRange()
             ?: return rangeQuery.toFormattedError()
 
-        //TODO: eventually implement OH, OB and CH
         val filter = when (command) {
             Command.Startup -> CoreFilters.Startup(from, to)
+            Command.OnBlock -> CoreFilters.OnBlock(from, to)
+            Command.OnHit -> CoreFilters.OnHit(from, to)
+            Command.OnCounter -> CoreFilters.Startup(from, to)
             else -> return rangeQuery.toFormattedError()
         }
 
@@ -37,8 +40,14 @@ internal class GetMovesWithinRangeUseCase {
             .filter(filter.predicate)
             .distinctBy { it.input }
 
-        val result = Result.Success(character to moveList)
-        return result
+        val range = MoveRange(
+            rangeType = filter,
+            character = character,
+            from = from,
+            to = to,
+            moveList = moveList,
+        )
+        return Result.Success(range)
     }
 
 

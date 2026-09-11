@@ -66,6 +66,9 @@ internal class WavuWikiDiscordFeature(
         Command.ThrowTK,
         Command.Strings,
         Command.Startup,
+        Command.OnBlock,
+        Command.OnHit,
+        Command.OnCounter,
     )
     private var wikiClientMap: Map<Game, WikiClient> = emptyMap()
 
@@ -153,7 +156,11 @@ internal class WavuWikiDiscordFeature(
                     query = formattedQuery,
                 ) { _, wiki, query -> getStringFollowupsUseCase.invoke(wiki, query, featureInfo) }
             }
-            Command.Startup ->
+
+            Command.Startup,
+            Command.OnBlock,
+            Command.OnHit,
+            Command.OnCounter ->
                 withWiki(
                     wikis = wikiClientMap,
                     game = Game.Tekken8,
@@ -340,16 +347,24 @@ internal class WavuWikiDiscordFeature(
         command: Command,
         query: String,
     ): Result<BotOutput, BotError> {
-        return getMovesWithinRangeUseCase(wiki, command, query).map { (character, moveList) ->
+        return getMovesWithinRangeUseCase(wiki, command, query).map { moveRange ->
+
             BotOutput(
                 primaryEmbedBuilder = moveListEmbed(
-                    category = "${character.displayName.uppercase()} ${command.name}",
-                    dataList = moveList.map { it.input },
+                    moveRange = moveRange,
                     featureInfo = featureInfo,
                     color = Color(BLUE),
-                ),
+                ) { move ->
+                    when (command) {
+                        Command.Startup -> "${move.input} (${move.startup})"
+                        Command.OnBlock -> "${move.input} (${move.onBlock})"
+                        Command.OnHit -> "${move.input} (${move.onHit})"
+                        Command.OnCounter -> "${move.input} (${move.onCH})"
+                        else -> null
+                    }
+                },
                 buttons = BotOutput.ButtonSet(
-                    buttonList = moveList.toButtons(charName = character.id),
+                    buttonList = moveRange.moveList.toButtons(charName = moveRange.character.id),
                     duration = EMBED_BUTTON_DURATION_INF.seconds,
                 ),
             )
