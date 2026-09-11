@@ -20,7 +20,7 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 @OptIn(ExperimentalTime::class)
-internal class GetAvailableFeaturesUseCase(
+internal class SubscribeToAvailableFeaturesUseCase(
     private val featureRepo: FeatureRepo,
     private val store: DataStore<Preferences>,
 ) {

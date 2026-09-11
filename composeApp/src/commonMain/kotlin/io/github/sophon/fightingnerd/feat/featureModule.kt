@@ -20,7 +20,7 @@ import io.github.sophon.fightingnerd.feat.more.ui.MoreVM
 import io.github.sophon.fightingnerd.feat.more.ui.about.AboutVM
 import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsVM
 import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesVM
-import io.github.sophon.fightingnerd.feat.more.usecase.GetAvailableFeaturesUseCase
+import io.github.sophon.fightingnerd.feat.more.usecase.SubscribeToAvailableFeaturesUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.ManualRefreshUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SaveFeatureConfigUseCase
 import io.github.sophon.fightingnerd.feat.more.usecase.SetUpdatePeriodUseCase
@@ -68,7 +68,7 @@ internal fun featureModule() = module {
     //region More
     viewModelOf(::MoreVM)
 
-    singleOf(::GetAvailableFeaturesUseCase)
+    singleOf(::SubscribeToAvailableFeaturesUseCase)
     singleOf(::SubscribeToThemeUseCase)
     singleOf(::SaveFeatureConfigUseCase)
     singleOf(::SubscribeToUpdatePeriodUseCase)

@@ -24,7 +24,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class GetAvailableFeaturesUseCaseTest {
+internal class SubscribeToAvailableFeaturesUseCaseTest {
     private val storePath = "get_available_features_test_${Random.nextInt()}.preferences_pb".toPath()
     private val store = PreferenceDataStoreFactory.createWithPath(
         scope = TestScope(UnconfinedTestDispatcher()),
@@ -49,7 +49,7 @@ internal class GetAvailableFeaturesUseCaseTest {
                 Game.MK1 to superComboClient,
             ),
         )
-        val usecase = GetAvailableFeaturesUseCase(repo, store)
+        val usecase = SubscribeToAvailableFeaturesUseCase(repo, store)
         val expectedFeatureOrder = listOf("Wavu Wiki", "SuperCombo Wiki")
         val expectedGameOrder = listOf(Game.Tekken8.id, Game.StreetFighter6.id, Game.MK1.id)
 
@@ -70,7 +70,7 @@ internal class GetAvailableFeaturesUseCaseTest {
         val wavuClient = FakeWikiClient(name = "Wavu Wiki")
         val repo = FakeFeatureRepo(gameClients = mapOf(Game.Tekken8 to wavuClient))
         store.edit { prefs -> prefs[featureKey("Wavu Wiki", Game.Tekken8.id)] = false }
-        val usecase = GetAvailableFeaturesUseCase(repo, store)
+        val usecase = SubscribeToAvailableFeaturesUseCase(repo, store)
 
         // when
         val result = usecase.invoke().first()
