@@ -156,13 +156,11 @@ private fun Header(
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            if (name.isNullOrBlank().not()) {
-                Text(
-                    text = name,
-                    style = nerdTypography.labelSmall,
-                    color = nerdColorPalette.textSecondary,
-                )
-            }
+            Text(
+                text = name.orEmpty(),
+                style = nerdTypography.labelSmall,
+                color = nerdColorPalette.textSecondary,
+            )
             Properties(
                 propertySet = propertySet
             )
