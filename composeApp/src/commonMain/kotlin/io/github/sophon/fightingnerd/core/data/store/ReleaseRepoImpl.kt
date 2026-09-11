@@ -39,7 +39,10 @@ internal class ReleaseRepoImpl(
 
     override fun getReleases(): Flow<List<Release>> {
         val releasesFlow = flow {
-            val releases = remoteSource.getReleaseNotes().toDomain()
+            val releases = when (val result = remoteSource.getReleaseNotes()) {
+                is Result.Success -> result.data.toDomain()
+                is Result.Error -> emptyList()
+            }
             emit(releases)
         }
         return releasesFlow
