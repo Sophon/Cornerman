@@ -138,6 +138,26 @@ internal sealed class Command(
 //        ),
 //    )
 
+    object Startup : Command(
+        name = "Startup",
+        description = "Shows moves within range",
+        argumentList = listOf(
+            Argument(
+                name = "character",
+                description = "Character name",
+                autoCompleteType = Argument.AutoCompleteType.Character,
+            ),
+            Argument(
+                name = "min",
+                description = "minimum (can be -inf)",
+            ),
+            Argument(
+                name = "max",
+                description = "maximum (can be inf)",
+            ),
+        ),
+    )
+
     object Gl: Command(
         name = "Gl",
         description = "Fighting-game glossary",
