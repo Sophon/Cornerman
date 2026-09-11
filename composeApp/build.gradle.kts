@@ -74,6 +74,10 @@ kotlin {
             implementation(libs.napier)
 
             implementation(libs.sqldelight.driver.android)
+
+            implementation(libs.androidx.work.runtime)
+
+            implementation(libs.play.review.ktx)
         }
 
         iosMain.dependencies {

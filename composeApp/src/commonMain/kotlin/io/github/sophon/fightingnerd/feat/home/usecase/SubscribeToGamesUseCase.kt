@@ -35,7 +35,7 @@ internal class SubscribeToGamesUseCase(
             .catch { throwable ->
                 val error = when (throwable) {
                     is IOException -> AppError.IOError(throwable.message.orEmpty())
-                    else -> AppError.Unknown
+                    else -> AppError.Unknown(throwable.message.orEmpty())
                 }
                 emit(Result.Error(error))
             }

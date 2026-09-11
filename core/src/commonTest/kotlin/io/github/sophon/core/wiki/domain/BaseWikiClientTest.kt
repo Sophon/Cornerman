@@ -21,6 +21,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
@@ -202,6 +203,6 @@ class BaseWikiClientTest {
 
         override fun subscribeToMoveList(characterId: String): Flow<List<Move>> = emptyFlow()
         override suspend fun wipeData(): EmptyResult<DataError> = Result.Success(Unit)
-        override suspend fun getLastUpdateTimestamp(): Result<Instant?, DataError> = Result.Success(null)
+        override fun subscribeToLastUpdateTimestamp(): Flow<Instant?> = flowOf(null)
     }
 }

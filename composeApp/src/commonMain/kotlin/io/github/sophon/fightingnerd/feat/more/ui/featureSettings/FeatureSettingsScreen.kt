@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import fightingnerd.composeapp.generated.resources.Res
-import fightingnerd.composeapp.generated.resources.more_feature_settings_btn_save
+import fightingnerd.composeapp.generated.resources.general_save
 import io.github.sophon.fightingnerd.core.ui.components.TopBarButton
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import io.github.sophon.fightingnerd.theme.nerdColorPalette
@@ -45,10 +45,7 @@ internal fun FeatureSettingsScreen(
         onExit = onExit,
         onFeatureToggle = vm::toggleFeature,
         onGameToggle = vm::toggleGame,
-        onSaveConfig = {
-            vm.saveConfiguration()
-            onExit()
-        },
+        onSaveConfig = vm::displayConfirmationDialog,
         modifier = modifier,
     )
 }
@@ -62,11 +59,7 @@ private fun Content(
     onSaveConfig: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(
-            space = nerdDimensions.inlineGap,
-            alignment = Alignment.Top,
-        ),
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(
@@ -74,38 +67,44 @@ private fun Content(
                 vertical = nerdDimensions.screenPaddingVertical,
             )
     ) {
-        item {
-            Header(
-                isChanged = state.isChanged,
-                onExit = onExit,
-                onSaveConfig = onSaveConfig
-            )
-        }
+        Header(
+            isChanged = state.isChanged,
+            onExit = onExit,
+            onSaveConfig = onSaveConfig
+        )
 
-        itemsIndexed(state.updatedFeatureList) { featureIndex, feature ->
-            val shape = RoundedCornerShape(nerdDimensions.cornerDefault)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(shape)
-                    .background(nerdColorPalette.surface)
-            ) {
-                Toggle(
-                    title = feature.featureName,
-                    subtitle = feature.version,
-                    isEnabled = feature.isEnabled,
-                    isCategory = true,
-                    onToggle = { onFeatureToggle(featureIndex, it) },
-                )
-
-                feature.gameList.forEachIndexed { gameIndex, game ->
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(
+                space = nerdDimensions.inlineGap,
+                alignment = Alignment.Top,
+            ),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            itemsIndexed(state.updatedFeatureList) { featureIndex, feature ->
+                val shape = RoundedCornerShape(nerdDimensions.cornerDefault)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(shape)
+                        .background(nerdColorPalette.surface)
+                ) {
                     Toggle(
-                        title = game.displayName,
-                        isEnabled = game.isEnabled,
-                        onToggle = {
-                            onGameToggle(featureIndex, gameIndex, it)
-                        },
+                        title = feature.featureName,
+                        subtitle = feature.version,
+                        isEnabled = feature.isEnabled,
+                        isCategory = true,
+                        onToggle = { onFeatureToggle(featureIndex, it) },
                     )
+
+                    feature.gameList.forEachIndexed { gameIndex, game ->
+                        Toggle(
+                            title = game.displayName,
+                            isEnabled = game.isEnabled,
+                            onToggle = {
+                                onGameToggle(featureIndex, gameIndex, it)
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -135,7 +134,7 @@ private fun Header(
             enabled = isChanged,
         ) {
             Text(
-                text = stringResource(Res.string.more_feature_settings_btn_save).uppercase(),
+                text = stringResource(Res.string.general_save).uppercase(),
                 style = nerdTypography.labelLarge,
             )
         }

@@ -31,6 +31,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,24 +46,30 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import io.github.sophon.core.architecture.onSuccess
 import io.github.sophon.core.featureConfig.FeatureRepo
+import io.github.sophon.fightingnerd.core.ui.Dialog
 import io.github.sophon.fightingnerd.core.ui.OverlayService
 import io.github.sophon.fightingnerd.core.ui.components.CircularLoader
 import io.github.sophon.fightingnerd.core.ui.components.ToastSnackBar
 import io.github.sophon.fightingnerd.core.ui.components.ToastVisuals
+import io.github.sophon.fightingnerd.feat.changelog.ChangelogClient
+import io.github.sophon.fightingnerd.feat.changelog.ui.ChangelogDialog
 import io.github.sophon.fightingnerd.feat.home.ui.HomeScreen
 import io.github.sophon.fightingnerd.feat.module.usecase.LoadConfigUseCase
 import io.github.sophon.fightingnerd.feat.more.model.MoreItem
 import io.github.sophon.fightingnerd.feat.more.ui.MoreScreen
 import io.github.sophon.fightingnerd.feat.more.ui.featureSettings.FeatureSettingsScreen
+import io.github.sophon.fightingnerd.feat.more.ui.updates.UpdatesScreen
 import io.github.sophon.fightingnerd.feat.move.ui.MoveListScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.overview.QuizOverviewScreen
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.QuizScreen
+import io.github.sophon.fightingnerd.core.usecase.RecordInstallationUseCase
+import io.github.sophon.fightingnerd.feat.more.ui.about.AboutScreen
 import io.github.sophon.fightingnerd.navigation.domain.Destination
 import io.github.sophon.fightingnerd.navigation.domain.rootDestinationSet
 import io.github.sophon.fightingnerd.navigation.domain.rootDestinations
 import io.github.sophon.fightingnerd.navigation.ui.BottomNavBarView
-import io.github.sophon.fightingnerd.navigation.ui.PlaceholderScreen
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
+import kotlinx.coroutines.launch
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.koinInject
@@ -79,6 +86,8 @@ private val navConfig = SavedStateConfiguration {
             subclass(Destination.MoveDetail::class, Destination.MoveDetail.serializer())
             subclass(Destination.CharacterDetail::class, Destination.CharacterDetail.serializer())
             subclass(Destination.FeatureSettings::class, Destination.FeatureSettings.serializer())
+            subclass(Destination.UpdatesSettings::class, Destination.UpdatesSettings.serializer())
+            subclass(Destination.About::class, Destination.About.serializer())
         }
     }
 }
@@ -101,6 +110,9 @@ private val popDownTransition: ContentTransform = ContentTransform(
 
 @Composable
 internal fun App() {
+    val recordInstallation = koinInject<RecordInstallationUseCase>()
+    LaunchedEffect(Unit) { recordInstallation() }
+
     val isInitialized = rememberFeaturesLoaded()
 
     FightingNerdTheme {
@@ -124,7 +136,7 @@ private fun rememberFeaturesLoaded(): Boolean {
     val featureRepo = koinInject<FeatureRepo>()
     val loadConfigUseCase = koinInject<LoadConfigUseCase>()
     LaunchedEffect(Unit) {
-        loadConfigUseCase.invoke()
+        loadConfigUseCase()
             .onSuccess { config ->
                 featureRepo.initialize(config)
                 isInitialized = true
@@ -140,7 +152,27 @@ private fun Content(
 ) {
     val backStack = rememberNavBackStack(navConfig, Destination.Home)
     val overlayService = koinInject<OverlayService>()
+    val changelogClient = koinInject<ChangelogClient>()
     val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(changelogClient, overlayService) {
+        changelogClient.subscribeToUnseenChangelog().collect { release ->
+            overlayService.show(
+                Dialog(
+                    content = { onDismiss ->
+                        ChangelogDialog(
+                            release = release,
+                            onDismiss = {
+                                scope.launch { changelogClient.saveReleaseAsSeen(release.version) }
+                                onDismiss()
+                            },
+                        )
+                    },
+                )
+            )
+        }
+    }
 
     BottomBarPaddingProvider {
         Box(
@@ -211,30 +243,6 @@ private fun AppNavDisplay(
                     }
                 )
             }
-            entry<Destination.Search> {
-                PlaceholderScreen(label = "Search")
-            }
-            entry<Destination.Saved> {
-                PlaceholderScreen(label = "Saved")
-            }
-            entry<Destination.QuizOverview> {
-                QuizOverviewScreen(
-                    onNavigateToQuiz = { gameId ->
-                        backStack.add(Destination.Quiz(gameId = gameId))
-                    }
-                )
-            }
-            entry<Destination.More> {
-                MoreScreen(
-                    onNavigate = { moreItem ->
-                        when (moreItem) {
-                            MoreItem.FeatureSettings -> backStack.add(Destination.FeatureSettings)
-//                            MoreItem.Theme -> {/* no navigation */}
-                        }
-                    }
-                )
-            }
-
             entry<Destination.MoveList> { destination ->
                 MoveListScreen(
                     gameId = destination.gameId,
@@ -242,14 +250,43 @@ private fun AppNavDisplay(
                     onExit = { backStack.removeLastOrNull() },
                 )
             }
-            entry<Destination.FeatureSettings> {
-                FeatureSettingsScreen(onExit = { backStack.removeLastOrNull() })
+
+            entry<Destination.QuizOverview> {
+                QuizOverviewScreen(
+                    onNavigateToQuiz = { gameId, characterId ->
+                        backStack.add(Destination.Quiz(gameId = gameId, characterId = characterId))
+                    }
+                )
             }
             entry<Destination.Quiz> { destination ->
                 QuizScreen(
                     gameId = destination.gameId,
+                    characterId = destination.characterId,
                     onExit = { backStack.removeLastOrNull() },
                 )
+            }
+
+            entry<Destination.More> {
+                MoreScreen(
+                    onNavigate = { moreItem ->
+                        when (moreItem) {
+                            MoreItem.FeatureSettings -> backStack.add(Destination.FeatureSettings)
+                            MoreItem.UpdatesSettings -> backStack.add(Destination.UpdatesSettings)
+                            MoreItem.About -> backStack.add(Destination.About)
+//                            MoreItem.Theme -> {/* no navigation */}
+                        }
+                    }
+                )
+            }
+
+            entry<Destination.FeatureSettings> {
+                FeatureSettingsScreen(onExit = { backStack.removeLastOrNull() })
+            }
+            entry<Destination.UpdatesSettings> {
+                UpdatesScreen(onExit = { backStack.removeLastOrNull() })
+            }
+            entry<Destination.About> {
+                AboutScreen(onExit = { backStack.removeLastOrNull() })
             }
         }
     )

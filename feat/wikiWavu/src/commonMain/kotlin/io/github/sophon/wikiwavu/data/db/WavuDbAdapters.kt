@@ -2,6 +2,7 @@ package io.github.sophon.wikiwavu.data.db
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList
+import app.cash.sqldelight.coroutines.mapToOne
 import io.github.sophon.core.featureConfig.model.Game
 import io.github.sophon.core.wiki.data.CharacterDbAdapter
 import io.github.sophon.core.wiki.data.MoveDbAdapter
@@ -154,9 +155,11 @@ internal class WavuMoveDbAdapter(
         db.transaction { block() }
     }
 
-    override fun getLastUpdateTimestamp(): Instant? {
-        val millis = moveQueries.selectLastInsertedAt().executeAsOne().lastInsertedAt
-        val timestamp = millis?.let { Instant.fromEpochMilliseconds(it) }
-        return timestamp
+    override fun selectLastUpdateTimestampFlow(): Flow<Instant?> {
+        val flow = moveQueries.selectLastInsertedAt()
+            .asFlow()
+            .mapToOne(Dispatchers.IO)
+            .map { row -> row.lastInsertedAt?.let(Instant::fromEpochMilliseconds) }
+        return flow
     }
 }

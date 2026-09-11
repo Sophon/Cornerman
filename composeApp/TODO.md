@@ -2,20 +2,14 @@
 
 ## High prio
 
-- `Move` 
-  - sliders reset when setting the same value
-  - for startup, set max to 14, then set min to 14, one should reset back to MIN/MAX
-- `More` 
-  - Feature settings confirmation dialog
-  - Update settings
-    - frequency, last updated time, update individual games
-    - Media status?
-- `Quiz` - individual char quiz
+- new Icon
 
 ## Low prio
 
 - first time launch tutorial dialog
   - can tell the user about Swipe-to-refresh
+- Home - character search
+- Favorites - character bookmarking
 - older games
   - Wavu 
     - T7
@@ -30,7 +24,3 @@
   - [Injustice 2](https://gist.github.com/taozenforce/401947902eaa1dd343bac4beb33f2a6a)
 
 ## Ideas
-
-- How to convey refresh and last-refresh-time?
-  - each game's widget has info button which will open dialog with last-update-time and button to refresh
-- Share to Screenshot or Discord formatted text

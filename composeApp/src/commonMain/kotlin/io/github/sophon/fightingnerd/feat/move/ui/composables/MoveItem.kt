@@ -1,7 +1,6 @@
 package io.github.sophon.fightingnerd.feat.move.ui.composables
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -34,20 +33,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import coil3.compose.SubcomposeAsyncImage
 import fightingnerd.composeapp.generated.resources.Res
 import fightingnerd.composeapp.generated.resources.move_list_field_damage
 import fightingnerd.composeapp.generated.resources.move_list_field_guard
 import fightingnerd.composeapp.generated.resources.move_list_field_on_block
 import fightingnerd.composeapp.generated.resources.move_list_field_on_hit
 import fightingnerd.composeapp.generated.resources.move_list_field_startup
-import io.github.sophon.fightingnerd.core.ui.components.CircularLoader
+import io.github.sophon.fightingnerd.core.ui.components.IconAction
+import io.github.sophon.fightingnerd.core.ui.components.IconActionButton
 import io.github.sophon.fightingnerd.core.ui.components.ImageCarousel
 import io.github.sophon.fightingnerd.feat.move.model.Property
 import io.github.sophon.fightingnerd.feat.move.ui.UiMove
-import io.github.sophon.fightingnerd.feat.move.ui.icon
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.components.VideoPlayer
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import io.github.sophon.fightingnerd.theme.nerdColorPalette
@@ -57,8 +53,6 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.persistentSetOf
-import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val COUNT_MAX_PER_ROW = 3
@@ -67,6 +61,7 @@ private const val COUNT_MAX_PER_ROW = 3
 internal fun MoveItem(
     uiMove: UiMove,
     onMoveClick: () -> Unit,
+    onShareClick: (id: String) -> Unit,
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -90,6 +85,7 @@ internal fun MoveItem(
             input = uiMove.input,
             name = uiMove.name,
             propertySet = uiMove.propertySet,
+            onShare = { onShareClick(uiMove.id) },
         )
 
         FlowRow(
@@ -127,6 +123,7 @@ private fun Header(
     input: String,
     name: String?,
     propertySet: ImmutableSet<Property>,
+    onShare: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -143,20 +140,32 @@ private fun Header(
                 modifier = Modifier.weight(1f),
             )
 
+            IconActionButton(
+                action = IconAction(
+                    icon = Icons.Outlined.Share,
+                    onClick = onShare,
+                ),
+                tint = nerdColorPalette.textSecondary,
+                modifier = Modifier.size(nerdDimensions.iconInline),
+            )
+        }
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(
+                text = name.orEmpty(),
+                style = nerdTypography.labelSmall,
+                color = nerdColorPalette.textSecondary,
+            )
             Properties(
                 propertySet = propertySet
             )
         }
-
-        if (name.isNullOrBlank().not()) {
-            Spacer(Modifier.height(nerdDimensions.componentGapTight))
-            Text(
-                text = name,
-                style = nerdTypography.labelSmall,
-                color = nerdColorPalette.textSecondary,
-            )
-            Spacer(Modifier.height(nerdDimensions.componentGapTight))
-        }
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
 
         HorizontalDivider(
             modifier = Modifier
@@ -167,41 +176,54 @@ private fun Header(
 }
 
 @Composable
-private fun FieldColumn(
-    field: UiMove.Field,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = field.value ?: "-",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.defaultMinSize(minHeight = 24.dp),
-        )
-        Text(
-            text = stringResource(field.label).uppercase(),
-            style = nerdTypography.labelMedium,
-            color = nerdColorPalette.textSecondary,
-        )
-    }
-}
-
-@Composable
-private fun Properties(
-    propertySet: ImmutableSet<Property>,
+private fun Details(
+    uiMove: UiMove,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(nerdDimensions.componentGapTight),
-        verticalAlignment = Alignment.CenterVertically,
+    Column(
         modifier = modifier,
     ) {
-        propertySet.forEach { property ->
-            Image(
-                painter = painterResource(property.icon()),
-                contentDescription = property.name,
-                modifier = Modifier.size(nerdDimensions.iconDefault),
-            )
+        uiMove.urls.videoUrl?.let { videoUrl ->
+            VideoPlayer(videoUrl)
+            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
+        }
+
+        when {
+            uiMove.urls.hitboxImageList.isNotEmpty() -> {
+                ImageCarousel(
+                    imageList = uiMove.urls.hitboxImageList,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
+            }
+            uiMove.urls.moveImageList.isNotEmpty() -> {
+                MoveImage(uiMove.urls.moveImageList.first())
+                Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
+            }
+        }
+
+        FlowRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(nerdDimensions.inlineGapTight),
+            maxItemsInEachRow = COUNT_MAX_PER_ROW,
+            verticalArrangement = Arrangement.spacedBy(nerdDimensions.componentPaddingTight),
+        ) {
+            uiMove.optionalFields.forEach { field ->
+                FieldColumn(
+                    field = field,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+        if (uiMove.optionalFields.isNotEmpty()) {
+            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
+        }
+
+        uiMove.notes.takeIf { it.isNotEmpty() }?.let { noteList ->
+            NotesSection(noteList)
+            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
         }
     }
 }
@@ -263,97 +285,6 @@ private fun ExpansionIndicator(
     }
 }
 
-@Composable
-private fun Details(
-    uiMove: UiMove,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier,
-    ) {
-        uiMove.urls.videoUrl?.let { videoUrl ->
-            VideoPlayer(videoUrl)
-            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-        }
-
-        when {
-            uiMove.urls.hitboxImageList.isNotEmpty() -> {
-                ImageCarousel(
-                    imageList = uiMove.urls.hitboxImageList,
-                )
-
-                Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-            }
-            uiMove.urls.moveImageList.isNotEmpty() -> {
-                MoveImage(uiMove.urls.moveImageList.first())
-                Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-            }
-        }
-
-        FlowRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(nerdDimensions.inlineGapTight),
-            maxItemsInEachRow = COUNT_MAX_PER_ROW,
-            verticalArrangement = Arrangement.spacedBy(nerdDimensions.componentPaddingTight),
-        ) {
-            uiMove.optionalFields.forEach { field ->
-                FieldColumn(
-                    field = field,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-        if (uiMove.optionalFields.isNotEmpty()) {
-            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-        }
-
-        uiMove.notes.takeIf { it.isNotEmpty() }?.let { noteList ->
-            NotesSection(noteList)
-            Spacer(Modifier.height(nerdDimensions.componentPaddingTight))
-        }
-    }
-}
-
-@Composable
-private fun MoveImage(
-    imageUrl: String,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = modifier.fillMaxWidth()
-    ) {
-        SubcomposeAsyncImage(
-            model = imageUrl,
-            contentDescription = null,
-            loading = { CircularLoader() },
-            modifier = modifier,
-        )
-    }
-}
-
-@Composable
-private fun NotesSection(
-    noteList: ImmutableList<String>,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        horizontalAlignment = Alignment.Start,
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        noteList.forEach { note ->
-            Text(
-                text = "· $note",
-                style = nerdTypography.bodyMedium,
-                color = nerdColorPalette.textPrimary,
-                textAlign = TextAlign.Start
-            )
-        }
-    }
-}
-
 
 //region PREVIEW
 private val videoMove = UiMove(
@@ -406,6 +337,7 @@ private fun CollapsedItemPreview() {
         MoveItem(
             uiMove = videoMove,
             onMoveClick = {},
+            onShareClick = {},
             isExpanded = false,
         )
     }
@@ -418,6 +350,7 @@ private fun ExpandedVideoItemPreview() {
         MoveItem(
             uiMove = videoMove,
             onMoveClick = {},
+            onShareClick = {},
             isExpanded = true,
         )
     }
@@ -430,6 +363,7 @@ private fun ExpandedImageItemPreview() {
         MoveItem(
             uiMove = imageMove,
             onMoveClick = {},
+            onShareClick = {},
             isExpanded = true,
         )
     }

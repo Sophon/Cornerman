@@ -8,8 +8,11 @@ import io.github.sophon.core.architecture.onSuccess
 import io.github.sophon.fightingnerd.core.ui.Dialog
 import io.github.sophon.fightingnerd.core.ui.OverlayService
 import io.github.sophon.fightingnerd.core.ui.Toast
+import io.github.sophon.fightingnerd.core.util.ScreenStopWatch
 import io.github.sophon.fightingnerd.feat.quiz.ui.quiz.components.FinishDialog
 import io.github.sophon.fightingnerd.feat.quiz.usecase.GenerateQuestionsUseCase
+import io.github.sophon.fightingnerd.feat.review.SessionContext
+import io.github.sophon.fightingnerd.core.usecase.RequestReviewUseCase
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,13 +21,16 @@ import kotlinx.coroutines.launch
 
 internal class QuizVM(
     private val gameId: String,
+    private val characterId: String?,
     private val onExit: () -> Unit,
 
     private val overlayService: OverlayService,
     private val generateQuestionsUseCase: GenerateQuestionsUseCase,
+    private val requestReviewUseCase: RequestReviewUseCase,
 ): ViewModel() {
     private val _state = MutableStateFlow(QuizState())
     val state = _state.asStateFlow()
+    private val screenStopWatch = ScreenStopWatch()
 
 
     init {
@@ -88,7 +94,7 @@ internal class QuizVM(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
-            generateQuestionsUseCase.invoke(gameId = gameId)
+            generateQuestionsUseCase(gameId = gameId, characterId = characterId)
                 .onSuccess { questionList ->
                     _state.update { it.copy(questionList = questionList.toImmutableList()) }
                 }
@@ -109,12 +115,22 @@ internal class QuizVM(
                     incorrectCount = state.value.incorrect,
                     onExit = {
                         _state.update { it.copy(displayFinishDialog = false) }
+                        askForReview()
                         onDismiss()
                         onExit()
                     }
                 )
             }
         )
+    }
+
+    private fun askForReview() {
+        val sessionDuration = screenStopWatch.elapsed()
+        val sessionContext = SessionContext.Quiz(
+            duration = sessionDuration,
+            correctAnswerPct = state.value.correctAnswerPct,
+        )
+        requestReviewUseCase(sessionContext)
     }
 
 

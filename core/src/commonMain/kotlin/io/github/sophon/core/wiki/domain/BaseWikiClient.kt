@@ -22,8 +22,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.transformWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -59,22 +57,16 @@ abstract class BaseWikiClient(
     }
 
     override fun subscribeToCharacterList(): Flow<List<Character>> {
-        val flow = characterRepo.subscribeToCharacterList()
-            .onEach { list ->
-                if (list.isEmpty()) {
-                    refreshData().launchIn(scope)
-                }
-            }
-        return flow
+        return characterRepo.subscribeToCharacterList()
     }
 
     override fun subscribeToMoveList(characterId: CharacterId): Flow<List<Move>> {
         return moveRepo.subscribeToMoveList(characterId.value)
     }
 
-    final override suspend fun getLastUpdateTimeStamp(): Result<Instant?, WikiError> {
-        val result = moveRepo.getLastUpdateTimestamp().mapError { it.toDomainError() }
-        return result
+    final override fun subscribeToLastUpdateTimestamp(): Flow<Instant?> {
+        val flow = moveRepo.subscribeToLastUpdateTimestamp()
+        return flow
     }
 
     final override suspend fun clearCache(): EmptyResult<WikiError> {
