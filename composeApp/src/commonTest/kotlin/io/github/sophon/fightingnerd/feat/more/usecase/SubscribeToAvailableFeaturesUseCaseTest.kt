@@ -3,7 +3,7 @@ package io.github.sophon.fightingnerd.feat.more.usecase
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import assertk.assertThat
-import assertk.assertions.containsExactly
+import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import io.github.sophon.core.architecture.Result
@@ -24,7 +24,7 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class GetAvailableFeaturesUseCaseTest {
+internal class SubscribeToAvailableFeaturesUseCaseTest {
     private val storePath = "get_available_features_test_${Random.nextInt()}.preferences_pb".toPath()
     private val store = PreferenceDataStoreFactory.createWithPath(
         scope = TestScope(UnconfinedTestDispatcher()),
@@ -49,7 +49,7 @@ internal class GetAvailableFeaturesUseCaseTest {
                 Game.MK1 to superComboClient,
             ),
         )
-        val usecase = GetAvailableFeaturesUseCase(repo, store)
+        val usecase = SubscribeToAvailableFeaturesUseCase(repo, store)
         val expectedFeatureOrder = listOf("Wavu Wiki", "SuperCombo Wiki")
         val expectedGameOrder = listOf(Game.Tekken8.id, Game.StreetFighter6.id, Game.MK1.id)
 
@@ -60,8 +60,8 @@ internal class GetAvailableFeaturesUseCaseTest {
         assertThat(result).isInstanceOf(Result.Success::class)
         val list = (result as Result.Success).data
         val gameIds = list.flatMap { feature -> feature.gameList.map { game -> game.id } }
-        assertThat(list.map { it.featureName }).containsExactly(*expectedFeatureOrder.toTypedArray())
-        assertThat(gameIds).containsExactly(*expectedGameOrder.toTypedArray())
+        assertThat(list.map { it.name }).isEqualTo(expectedFeatureOrder)
+        assertThat(gameIds).isEqualTo(expectedGameOrder)
     }
 
     @Test
@@ -70,7 +70,7 @@ internal class GetAvailableFeaturesUseCaseTest {
         val wavuClient = FakeWikiClient(name = "Wavu Wiki")
         val repo = FakeFeatureRepo(gameClients = mapOf(Game.Tekken8 to wavuClient))
         store.edit { prefs -> prefs[featureKey("Wavu Wiki", Game.Tekken8.id)] = false }
-        val usecase = GetAvailableFeaturesUseCase(repo, store)
+        val usecase = SubscribeToAvailableFeaturesUseCase(repo, store)
 
         // when
         val result = usecase.invoke().first()

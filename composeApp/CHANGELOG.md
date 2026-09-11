@@ -5,6 +5,7 @@
 - `Changelog` - display changelog if release hasn't been seen
 - `Review` - occasionally prompt for review
 - `More` - About section
+- refactor the data refresh logic
 
 ## [v4.0.1] - 2026-09-09
 - fixed updater on iOS
