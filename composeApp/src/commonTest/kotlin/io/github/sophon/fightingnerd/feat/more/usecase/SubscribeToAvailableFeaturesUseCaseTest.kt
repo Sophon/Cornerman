@@ -3,7 +3,7 @@ package io.github.sophon.fightingnerd.feat.more.usecase
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import assertk.assertThat
-import assertk.assertions.containsExactly
+import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import io.github.sophon.core.architecture.Result
@@ -60,8 +60,8 @@ internal class SubscribeToAvailableFeaturesUseCaseTest {
         assertThat(result).isInstanceOf(Result.Success::class)
         val list = (result as Result.Success).data
         val gameIds = list.flatMap { feature -> feature.gameList.map { game -> game.id } }
-        assertThat(list.map { it.featureName }).containsExactly(*expectedFeatureOrder.toTypedArray())
-        assertThat(gameIds).containsExactly(*expectedGameOrder.toTypedArray())
+        assertThat(list.map { it.name }).isEqualTo(expectedFeatureOrder)
+        assertThat(gameIds).isEqualTo(expectedGameOrder)
     }
 
     @Test
