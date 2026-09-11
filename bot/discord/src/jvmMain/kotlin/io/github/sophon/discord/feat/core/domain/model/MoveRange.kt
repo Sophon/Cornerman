@@ -18,7 +18,7 @@ data class MoveRange(
 
     val formattedMax: String get() {
         return if (to > LIMIT_NUMBER) "INF"
-        else from.toString()
+        else to.toString()
     }
 }
 
