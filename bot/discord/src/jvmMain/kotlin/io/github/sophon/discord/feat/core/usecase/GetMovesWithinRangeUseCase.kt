@@ -25,7 +25,7 @@ internal class GetMovesWithinRangeUseCase {
             Command.Startup -> CoreFilters.Startup(from, to)
             Command.OnBlock -> CoreFilters.OnBlock(from, to)
             Command.OnHit -> CoreFilters.OnHit(from, to)
-            Command.OnCounter -> CoreFilters.Startup(from, to)
+            Command.OnCounter -> CoreFilters.OnCounter(from, to)
             else -> return rangeQuery.toFormattedError()
         }
 
