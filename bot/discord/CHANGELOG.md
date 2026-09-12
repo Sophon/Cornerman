@@ -2,6 +2,7 @@
 
 ## [v16.6.1] - TODO
 - fixed `OnCounter` not using the right filter
+- tweak `help` and `commands` commands
 
 ## [v16.6.0] - 2026-09-12
 - `Startup`, `OnBlock`, `OnHit` and `OnCounter` commands
