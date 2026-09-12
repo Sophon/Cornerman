@@ -51,7 +51,7 @@ internal class AboutVM(
                         .map { feature ->
                             AboutState.UiWiki(
                                 iconUrl = feature.iconUrl,
-                                url = "TODO: ",
+                                url = feature.url,
                             )
                         }
                         .toImmutableList()
