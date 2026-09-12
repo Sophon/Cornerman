@@ -109,11 +109,11 @@ class GetMovesWithinRangeUseCaseTest {
     }
 
     @Test
-    fun `useCase filters by startup for OnCounter command`() = runTest {
+    fun `useCase filters by onCH for OnCounter command`() = runTest {
         // given — OnCounter reuses the Startup filter by design
         val character = createCharacter("jin")
-        val fastMove = createMove(input = "1", startup = "10")
-        val slowMove = createMove(input = "wr2", startup = "25")
+        val fastMove = createMove(input = "1", onCH = "10")
+        val slowMove = createMove(input = "wr2", onCH = "25")
         val moveList = listOf(fastMove, slowMove)
 
         // when
@@ -129,7 +129,7 @@ class GetMovesWithinRangeUseCaseTest {
         // then
         val range = (result as Result.Success).data
         assertThat(range.moveList).isEqualTo(listOf(fastMove))
-        assertThat(range.rangeType).isInstanceOf(CoreFilters.Startup::class)
+        assertThat(range.rangeType).isInstanceOf(CoreFilters.OnCounter::class)
     }
 
     @Test
@@ -271,7 +271,33 @@ class GetMovesWithinRangeUseCaseTest {
     }
 
     @Test
-    fun `useCase returns InvalidQuery when only one number is provided`() = runTest {
+    fun `useCase treats a single number as a single-point range`() = runTest {
+        // given
+        val character = createCharacter("jin")
+        val onValue = createMove(input = "1", startup = "10")
+        val below = createMove(input = "df1", startup = "9")
+        val above = createMove(input = "wr2", startup = "11")
+        val moveList = listOf(below, onValue, above)
+
+        // when
+        val result = useCase.invoke(
+            wiki = FakeWikiClient(
+                characterList = listOf(character),
+                moveListByCharacterId = mapOf(character.id to moveList),
+            ),
+            command = Command.Startup,
+            query = "jin 10",
+        )
+
+        // then
+        val range = (result as Result.Success).data
+        assertThat(range.from).isEqualTo(10)
+        assertThat(range.to).isEqualTo(10)
+        assertThat(range.moveList).isEqualTo(listOf(onValue))
+    }
+
+    @Test
+    fun `useCase returns InvalidQuery when no valid numbers are provided`() = runTest {
         // given
         val character = createCharacter("jin")
 
@@ -279,7 +305,7 @@ class GetMovesWithinRangeUseCaseTest {
         val result = useCase.invoke(
             wiki = FakeWikiClient(characterList = listOf(character)),
             command = Command.Startup,
-            query = "jin 10",
+            query = "jin abc",
         )
 
         // then
@@ -335,6 +361,7 @@ class GetMovesWithinRangeUseCaseTest {
         startup: String? = null,
         onBlock: String? = null,
         onHit: String? = null,
+        onCH: String? = null,
     ): Move {
         return Move(
             characterId = "Test",
@@ -342,6 +369,7 @@ class GetMovesWithinRangeUseCaseTest {
             startup = startup,
             onBlock = onBlock,
             onHit = onHit,
+            onCH = onCH,
             input = input,
             urls = Move.Urls(wikiUrl = "TODO"),
         )

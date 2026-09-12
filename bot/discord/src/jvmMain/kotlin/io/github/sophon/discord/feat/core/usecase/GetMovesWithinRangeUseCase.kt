@@ -25,7 +25,7 @@ internal class GetMovesWithinRangeUseCase {
             Command.Startup -> CoreFilters.Startup(from, to)
             Command.OnBlock -> CoreFilters.OnBlock(from, to)
             Command.OnHit -> CoreFilters.OnHit(from, to)
-            Command.OnCounter -> CoreFilters.Startup(from, to)
+            Command.OnCounter -> CoreFilters.OnCounter(from, to)
             else -> return rangeQuery.toFormattedError()
         }
 
@@ -61,13 +61,17 @@ internal class GetMovesWithinRangeUseCase {
             }
             .take(2)
 
-        if (range.size < 2) return null
+        if (range.isEmpty()) return null
 
-        val (low, high) = range.sorted()
+        val (low, high) = if (range.size < 2) {
+            listOf(range[0], range[0])
+        } else {
+            range.sorted()
+        }
         return low to high
     }
 
     private fun String.toFormattedError(): Result.Error<BotError> {
-        return Result.Error(BotError.InvalidQuery("SYNTAX: character name followed by two numbers (can be -INF/INF): $this"))
+        return Result.Error(BotError.InvalidQuery("SYNTAX: <charName> <value> [bound]: $this"))
     }
 }
