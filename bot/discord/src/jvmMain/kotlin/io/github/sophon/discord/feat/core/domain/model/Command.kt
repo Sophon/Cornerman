@@ -149,11 +149,12 @@ internal sealed class Command(
             ),
             Argument(
                 name = "min",
-                description = "minimum (can be -inf)",
+                description = "minimum (can be +/-inf)",
             ),
             Argument(
                 name = "max",
-                description = "maximum (can be inf)",
+                description = "maximum (can be +/-inf)",
+                isRequired = false,
             ),
         ),
     )
@@ -169,11 +170,12 @@ internal sealed class Command(
             ),
             Argument(
                 name = "min",
-                description = "minimum (can be -inf)",
+                description = "minimum (can be +/-inf)",
             ),
             Argument(
                 name = "max",
-                description = "maximum (can be inf)",
+                description = "maximum (can be +/-inf)",
+                isRequired = false,
             ),
         ),
     )
@@ -189,11 +191,12 @@ internal sealed class Command(
             ),
             Argument(
                 name = "min",
-                description = "minimum (can be -inf)",
+                description = "minimum (can be -/+inf)",
             ),
             Argument(
                 name = "max",
-                description = "maximum (can be inf)",
+                description = "maximum (can be -/+inf)",
+                isRequired = false,
             ),
         ),
     )
@@ -209,11 +212,12 @@ internal sealed class Command(
             ),
             Argument(
                 name = "min",
-                description = "minimum (can be -inf)",
+                description = "minimum (can be +/-inf)",
             ),
             Argument(
                 name = "max",
-                description = "maximum (can be inf)",
+                description = "maximum (can be +/-inf)",
+                isRequired = false,
             ),
         ),
     )
