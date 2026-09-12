@@ -2,7 +2,9 @@ package io.github.sophon.fightingnerd.feat.more.ui.about
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -23,7 +26,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import fightingnerd.composeapp.generated.resources.Res
 import fightingnerd.composeapp.generated.resources.ic_fighting_nerd
 import fightingnerd.composeapp.generated.resources.more_about_about_body
@@ -33,6 +39,8 @@ import fightingnerd.composeapp.generated.resources.more_about_name_body
 import fightingnerd.composeapp.generated.resources.more_about_name_title
 import fightingnerd.composeapp.generated.resources.more_about_next_body
 import fightingnerd.composeapp.generated.resources.more_about_next_title
+import fightingnerd.composeapp.generated.resources.more_about_wikis_body
+import fightingnerd.composeapp.generated.resources.more_about_wikis_title
 import io.github.sophon.fightingnerd.core.ui.components.TopBarButton
 import io.github.sophon.fightingnerd.theme.FightingNerdTheme
 import io.github.sophon.fightingnerd.theme.nerdColorPalette
@@ -103,6 +111,12 @@ private fun Content(
         )
         Spacer(Modifier.height(nerdDimensions.componentGap))
 
+        WikisSection(
+            wikis = state.uiWikiList,
+            onLinkClick = onLinkClick,
+        )
+        Spacer(Modifier.height(nerdDimensions.componentGap))
+
         LinksSection(links = state.links, onLinkClick = onLinkClick)
         Spacer(Modifier.height(nerdDimensions.componentGap))
     }
@@ -154,6 +168,54 @@ private fun Section(
             style = nerdTypography.bodyLarge,
             color = nerdColorPalette.textPrimary,
         )
+    }
+}
+
+@Composable
+private fun WikisSection(
+    wikis: ImmutableList<AboutState.UiWiki>,
+    onLinkClick: (url: String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Text(
+            text = stringResource(Res.string.more_about_wikis_title).uppercase(),
+            style = nerdTypography.headlineSmall,
+            color = nerdColorPalette.textPrimary,
+        )
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
+
+        Text(
+            text = stringResource(Res.string.more_about_wikis_body),
+            style = nerdTypography.bodyLarge,
+            color = nerdColorPalette.textPrimary,
+        )
+        Spacer(Modifier.height(nerdDimensions.componentGapTight))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(
+                space = nerdDimensions.componentGap,
+                alignment = Alignment.CenterHorizontally,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+        ) {
+            wikis.forEach { link ->
+                AsyncImage(
+                    model = link.iconUrl,
+                    contentDescription = null,
+                    modifier = modifier
+                        .size(nerdDimensions.iconLarge)
+                        .clip(RoundedCornerShape(nerdDimensions.cornerDefault))
+                        .clickable(onClick = { onLinkClick(link.url) }),
+                )
+            }
+        }
     }
 }
 
