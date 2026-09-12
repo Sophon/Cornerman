@@ -109,11 +109,11 @@ class GetMovesWithinRangeUseCaseTest {
     }
 
     @Test
-    fun `useCase filters by startup for OnCounter command`() = runTest {
+    fun `useCase filters by onCH for OnCounter command`() = runTest {
         // given — OnCounter reuses the Startup filter by design
         val character = createCharacter("jin")
-        val fastMove = createMove(input = "1", startup = "10")
-        val slowMove = createMove(input = "wr2", startup = "25")
+        val fastMove = createMove(input = "1", onCH = "10")
+        val slowMove = createMove(input = "wr2", onCH = "25")
         val moveList = listOf(fastMove, slowMove)
 
         // when
@@ -129,7 +129,7 @@ class GetMovesWithinRangeUseCaseTest {
         // then
         val range = (result as Result.Success).data
         assertThat(range.moveList).isEqualTo(listOf(fastMove))
-        assertThat(range.rangeType).isInstanceOf(CoreFilters.Startup::class)
+        assertThat(range.rangeType).isInstanceOf(CoreFilters.OnCounter::class)
     }
 
     @Test
@@ -361,6 +361,7 @@ class GetMovesWithinRangeUseCaseTest {
         startup: String? = null,
         onBlock: String? = null,
         onHit: String? = null,
+        onCH: String? = null,
     ): Move {
         return Move(
             characterId = "Test",
@@ -368,6 +369,7 @@ class GetMovesWithinRangeUseCaseTest {
             startup = startup,
             onBlock = onBlock,
             onHit = onHit,
+            onCH = onCH,
             input = input,
             urls = Move.Urls(wikiUrl = "TODO"),
         )
